@@ -1,6 +1,9 @@
-FROM maven:3.9-openjdk-17 AS build
+FROM eclipse-temurin:17-jdk AS build
 
 WORKDIR /app
+
+# Install Maven
+RUN apt-get update && apt-get install -y maven
 
 # Copy pom.xml and download dependencies
 COPY pom.xml .
@@ -11,7 +14,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
