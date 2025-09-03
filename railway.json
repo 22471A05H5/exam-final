@@ -4,8 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "java -Dserver.port=$PORT -jar target/demo-0.0.1-SNAPSHOT.jar",
-    "healthcheckPath": "/",
-    "healthcheckTimeout": 100
+    "startCommand": "java -Dserver.port=$PORT -jar target/demo-0.0.1-SNAPSHOT.jar"
   }
 }
