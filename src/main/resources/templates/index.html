@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow-light: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 15px 40px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.2);
+            --border-radius: 20px;
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { opacity: 0.8; transform: scale(1) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.05) rotate(1deg); }
+        }
+
+        .navbar {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: headerPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes headerPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+            50% { transform: scale(1.1) rotate(2deg); opacity: 0.8; }
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .navbar-logo-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: var(--transition-bounce);
+            box-shadow: var(--shadow-light);
+        }
+
+        .navbar-logo-icon:hover {
+            transform: scale(1.1) rotate(10deg);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .navbar-logo-text h2 {
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .navbar-logo-text p {
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            opacity: 0.9;
+            font-weight: 300;
+            margin: 0;
+        }
+
+        .navbar-login {
+            animation: slideInRight 1s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .navbar-login-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar-login-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: var(--transition-smooth);
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .navbar-login-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .navbar-login-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .main-content {
+            width: 100%;
+            padding: 3rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            box-shadow: var(--shadow-heavy);
+            width: 100%;
+            text-align: center;
+            animation: containerEntrance 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes containerEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+                filter: blur(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: bold;
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition-bounce);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: var(--transition-smooth);
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .logo:hover::before {
+            animation: logoShine 0.8s ease-in-out;
+        }
+
+        @keyframes logoShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        h1 {
+            color: #333;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.3)); }
+            100% { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.6)); }
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .description {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            border-left: 5px solid transparent;
+            border-image: var(--primary-gradient) 1;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition-smooth);
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+
+        .description:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .description h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            font-weight: 600;
+        }
+
+        .description p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.7s forwards;
+        }
+
+        .feature {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition-bounce);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: var(--transition-smooth);
+        }
+
+        .feature:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .feature:hover::before {
+            left: 100%;
+        }
+
+        .feature:nth-child(odd) .feature-icon {
+            background: var(--primary-gradient);
+        }
+
+        .feature:nth-child(even) .feature-icon {
+            background: var(--secondary-gradient);
+        }
+
+        .feature:nth-child(3n) .feature-icon {
+            background: var(--accent-gradient);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition-bounce);
+        }
+
+        .feature:hover .feature-icon {
+            transform: scale(1.2) rotate(360deg);
+        }
+
+        .feature h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 600;
+        }
+
+        .feature p {
+            color: #666;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            line-height: 1.6;
+        }
+
+        .login-section {
+            background: var(--primary-gradient);
+            border-radius: 25px;
+            padding: 3rem;
+            color: white;
+            margin-top: 3rem;
+            box-shadow: var(--shadow-heavy);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.9s forwards;
+        }
+
+        .login-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .login-section h3 {
+            margin-bottom: 1.5rem;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-section p {
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #667eea;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            transition: var(--transition-smooth);
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--shadow-heavy);
+            color: white;
+        }
+
+        .login-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .credentials {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+            transition: var(--transition-smooth);
+        }
+
+        .credentials:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .credentials strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                padding: 2.5rem 1.5rem;
+            }
+            
+            .features {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 0 1rem;
+            }
+
+            .navbar-logo {
+                justify-content: center;
+            }
+
+            .navbar-login {
+                justify-content: center;
+            }
+            
+            .main-content {
+                padding: 2rem 1rem;
+            }
+
+            .container {
+                padding: 2rem;
+                border-radius: 15px;
+            }
+
+            .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .feature {
+                padding: 1.5rem;
+            }
+
+            .feature-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .login-section {
+                padding: 2rem;
+                border-radius: 20px;
+            }
+
+            .login-btn {
+                padding: 1rem 2rem;
+                width: 100%;
+            }
+
+            .navbar-login-btn {
+                padding: 0.7rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 1.5rem 0.5rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .description {
+                padding: 1.5rem;
+            }
+
+            .feature {
+                padding: 1.2rem;
+            }
+
+            .login-section {
+                padding: 1.5rem;
+            }
+
+            .credentials {
+                padding: 1rem;
+            }
+
+            .navbar-content {
+                padding: 0 0.5rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .feature-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .navbar-logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* High DPI Displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .container {
+                backdrop-filter: blur(25px) saturate(200%);
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: rgba(30, 30, 30, 0.95);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            h1 {
+                color: #fff;
+            }
+
+            .subtitle {
+                color: #ccc;
+            }
+
+            .description {
+                background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+                color: #fff;
+            }
+
+            .description h3 {
+                color: #fff;
+            }
+
+            .description p {
+                color: #ccc;
+            }
+
+            .feature {
+                background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .feature h4 {
+                color: #fff;
+            }
+
+            .feature p {
+                color: #ccc;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-logo">
+                <div class="navbar-logo-icon">EMS</div>
+                <div class="navbar-logo-text">
+                    <h2>Exam Management System</h2>
+                    <p>Digital Educational Platform</p>
+                </div>
+            </div>
+            <div class="navbar-login">
+                <a href="/login" class="navbar-login-btn">🔐 Login</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="logo">EMS</div>
+            
+            <h1>Exam Management System</h1>
+            <p class="subtitle">Comprehensive Digital Solution for Educational Assessments</p>
+            
+            <div class="description">
+                <h3>🎓 Welcome to Our Advanced Exam Management Platform</h3>
+                <p>
+                    Our state-of-the-art Exam Management System revolutionizes the way educational institutions 
+                    conduct, manage, and evaluate examinations. Built with modern technology and user-centric design, 
+                    we provide a seamless experience for administrators, faculty, and students.
+                </p>
+                <p>
+                    From exam creation to result analysis, our platform handles every aspect of the examination 
+                    process with precision, security, and efficiency.
+                </p>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">👥</div>
+                    <h4>Role-Based Access</h4>
+                    <p>Secure multi-level access control for Super Admin, Principal, HOD, Faculty, and Students</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📝</div>
+                    <h4>Exam Creation</h4>
+                    <p>Intuitive tools for creating diverse question types, setting time limits, and managing exam schedules</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h4>Real-time Analytics</h4>
+                    <p>Comprehensive reporting and analytics for performance tracking and institutional insights</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">💬</div>
+                    <h4>Communication Hub</h4>
+                    <p>Integrated messaging system for seamless communication between all stakeholders</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Secure & Reliable</h4>
+                    <p>Bank-level security with automated backups and 99.9% uptime guarantee</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📱</div>
+                    <h4>Mobile Responsive</h4>
+                    <p>Access from any device - desktop, tablet, or mobile with consistent user experience</p>
+                </div>
+            </div>
+
+            <div class="login-section">
+                <h3>🚀 Ready to Get Started?</h3>
+                <p>Access the administrative panel to begin managing your institution's examination system</p>
+                
+                <a href="/login" class="login-btn">Administrator Login</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

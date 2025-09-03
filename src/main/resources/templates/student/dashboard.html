@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - EMS</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-light);
+            background: var(--glass-bg);
+            border-left-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .top-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Action Cards Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.2);
+            border-color: var(--neon-blue);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .action-desc {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            background: rgba(0, 212, 255, 0.1);
+            font-weight: 600;
+            color: var(--neon-blue);
+        }
+
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .top-bar {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 style="color: var(--neon-blue); font-weight: 700; font-size: 1.5rem;">Student Panel</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Exam Portal</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/student/dashboard" class="nav-item active">
+                <span style="margin-right: 0.75rem;">🏠</span> Dashboard
+            </a>
+            <a href="/student/exams" class="nav-item">
+                <span style="margin-right: 0.75rem;">📝</span> Take Exams
+            </a>
+            <a href="/student/results" class="nav-item">
+                <span style="margin-right: 0.75rem;">📊</span> My Results
+            </a>
+            <a href="/student/profile" class="nav-item">
+                <span style="margin-right: 0.75rem;">👤</span> Profile
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div style="display: flex; align-items: center;">
+                <button onclick="toggleSidebar()" class="btn-secondary" style="margin-right: 1rem; display: none;" id="sidebarToggle">
+                    ☰
+                </button>
+                <div>
+                    <h1 style="font-size: 1.5rem; font-weight: 600;">Student Dashboard</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;" th:if="${student}">Welcome, <span th:text="${student.firstName + ' ' + student.lastName}"></span></p>
+                </div>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.875rem; margin-right: 1rem;" th:if="${department}">Department: <span th:text="${department.name}"></span></span>
+                <a href="/logout" class="btn-secondary">Logout</a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 2rem;">
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card glow-effect">
+                    <div class="stat-number" th:text="${totalExams}">0</div>
+                    <div class="stat-label">Available Exams</div>
+                </div>
+                <div class="stat-card glow-effect">
+                    <div class="stat-number" th:text="${completedExams}">0</div>
+                    <div class="stat-label">Completed Exams</div>
+                </div>
+                <div class="stat-card glow-effect">
+                    <div class="stat-number">Active</div>
+                    <div class="stat-label">Status</div>
+                </div>
+            </div>
+
+            <!-- Action Cards -->
+            <div class="action-grid">
+                <a href="/student/exams" class="action-card">
+                    <div class="action-icon">📝</div>
+                    <div class="action-title">Take Exam</div>
+                    <div class="action-desc">Access available exams</div>
+                </a>
+                
+                <a href="/student/results" class="action-card">
+                    <div class="action-icon">📊</div>
+                    <div class="action-title">My Results</div>
+                    <div class="action-desc">View exam scores</div>
+                </a>
+                
+                <a href="/student/profile" class="action-card">
+                    <div class="action-icon">👤</div>
+                    <div class="action-title">Profile</div>
+                    <div class="action-desc">Student information</div>
+                </a>
+                
+                <a href="/logout" class="action-card">
+                    <div class="action-icon">🚪</div>
+                    <div class="action-title">Logout</div>
+                    <div class="action-desc">Sign out safely</div>
+                </a>
+            </div>
+
+            <!-- Available Exams -->
+            <div class="glass-card glow-effect" th:if="${availableExams != null and !availableExams.empty}">
+                <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Available Exams</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div th:each="exam : ${availableExams}" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1.5rem;">
+                        <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--text-light); margin-bottom: 0.5rem;" th:text="${exam.title}"></h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;" th:text="${exam.description}"></p>
+                        <div style="color: var(--neon-blue); font-size: 0.875rem; margin-bottom: 1rem;">
+                            <div>Questions: <span th:text="${exam.totalQuestions}"></span></div>
+                            <div>Time: <span th:text="${exam.timeLimit + ' minutes'}"></span></div>
+                            <div>Start: <span th:text="${#temporals.format(exam.startTime, 'dd/MM/yyyy HH:mm')}"></span></div>
+                            <div>End: <span th:text="${#temporals.format(exam.endTime, 'dd/MM/yyyy HH:mm')}"></span></div>
+                        </div>
+                        <a th:href="@{/student/exams/{id}/take(id=${exam.id})}" class="btn-primary">
+                            Take Exam
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Results -->
+            <div class="glass-card glow-effect" th:if="${results != null and !results.empty}">
+                <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Recent Results</h2>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Exam</th>
+                                <th>Score</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="result : ${results}">
+                                <td style="font-weight: 600;" th:text="${result.exam.title}"></td>
+                                <td th:text="${result.score + '/' + result.totalQuestions}"></td>
+                                <td th:text="${#numbers.formatDecimal(result.percentage, 1, 1) + '%'}"></td>
+                                <td>
+                                    <span th:text="${result.grade}" 
+                                          th:style="${result.percentage >= 80} ? 'color: var(--neon-green); font-weight: 600;' : (${result.percentage >= 60} ? 'color: var(--neon-orange); font-weight: 600;' : 'color: #ff4757; font-weight: 600;')"></span>
+                                </td>
+                                <td th:text="${#temporals.format(result.submittedAt, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                    <a th:href="@{/student/results/{id}(id=${result.id})}" class="btn-secondary">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- No Content Messages -->
+            <div class="glass-card glow-effect" th:if="${(availableExams == null or availableExams.empty) and (results == null or results.empty)}" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📚</div>
+                <h3 style="color: var(--text-light); font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Exams Available</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Check back later for new exams from your faculty</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('show');
+        }
+
+        // Show mobile toggle button on small screens
+        function checkScreenSize() {
+            const toggle = document.getElementById('sidebarToggle');
+            if (window.innerWidth <= 768) {
+                toggle.style.display = 'block';
+            } else {
+                toggle.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkScreenSize);
+        checkScreenSize();
+    </script>
+</body>
+</html>

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperAdmin Dashboard - Exam Management System</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-pink: #ff1493;
+            --neon-green: #39ff14;
+            --neon-orange: #ff6600;
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Lightning Background Effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, var(--neon-blue) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, var(--neon-purple) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, var(--neon-pink) 0%, transparent 50%);
+            opacity: 0.08;
+            animation: lightningPulse 6s ease-in-out infinite alternate;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.02) 50%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, rgba(255, 20, 147, 0.02) 50%, transparent 70%);
+            animation: lightningStrikes 8s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes lightningPulse {
+            0% { opacity: 0.05; transform: scale(1); }
+            100% { opacity: 0.12; transform: scale(1.1); }
+        }
+
+        @keyframes lightningStrikes {
+            0%, 100% { transform: translateX(-100%) rotate(0deg); }
+            50% { transform: translateX(100%) rotate(180deg); }
+        }
+
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--glass-border);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.1),
+                0 0 100px rgba(138, 43, 226, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                rgba(255, 20, 147, 0.1), 
+                transparent);
+            animation: neonSweep 4s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes neonSweep {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            transition: var(--transition-bounce);
+            box-shadow: var(--shadow-light);
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(10deg);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-text h2 {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .logo-text p {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            animation: slideInRight 1s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info span {
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: var(--transition-smooth);
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .logout-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .success-message {
+            background: var(--success-gradient);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-medium);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-weight: 500;
+            animation: successSlideIn 1s ease-out 0.5s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success-message::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes successSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .welcome-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 2px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.1),
+                0 0 100px rgba(138, 43, 226, 0.05);
+            text-align: center;
+            animation: cardEntrance 1.2s ease-out both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                rgba(255, 20, 147, 0.1), 
+                transparent);
+            animation: neonSweep 5s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .welcome-card h1 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            text-shadow: 
+                0 0 20px var(--neon-blue),
+                0 0 40px var(--neon-purple);
+            position: relative;
+            z-index: 1;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-purple); }
+            100% { text-shadow: 0 0 30px var(--neon-blue), 0 0 60px var(--neon-purple); }
+        }
+
+        .welcome-card p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.1),
+                0 0 60px rgba(138, 43, 226, 0.05);
+            transition: all 0.3s ease;
+            animation: cardEntrance 1s ease-out both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card:nth-child(1) { animation-delay: 0.2s; }
+        .action-card:nth-child(2) { animation-delay: 0.4s; }
+        .action-card:nth-child(3) { animation-delay: 0.6s; }
+        .action-card:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                rgba(255, 20, 147, 0.1), 
+                transparent);
+            transition: all 0.5s ease;
+            z-index: 0;
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.2),
+                0 0 100px rgba(138, 43, 226, 0.1);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .action-card:hover::before {
+            left: 100%;
+        }
+
+        .action-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.4),
+                0 0 60px rgba(138, 43, 226, 0.2);
+            animation: iconFloat 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes iconFloat {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .action-card:nth-child(2) .action-icon {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink));
+        }
+
+        .action-card:nth-child(3) .action-icon {
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-green));
+        }
+
+        .action-card:nth-child(4) .action-icon {
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+        }
+
+        .action-card h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 20px rgba(0, 212, 255, 0.3),
+                0 0 40px rgba(138, 43, 226, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .action-btn span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-lightning {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.3), 
+                transparent);
+            transition: all 0.5s ease;
+            z-index: 1;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.5),
+                0 0 60px rgba(138, 43, 226, 0.3);
+        }
+
+        .action-btn:hover .btn-lightning {
+            left: 100%;
+        }
+
+        .action-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .logo-section {
+                justify-content: center;
+            }
+
+            .user-section {
+                justify-content: center;
+            }
+
+            .container {
+                padding: 0 1rem;
+                margin: 2rem auto;
+            }
+
+            .welcome-card {
+                padding: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-card {
+                padding: 1.5rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .success-message {
+                padding: 1.2rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+
+            .welcome-card {
+                background: rgba(30, 30, 30, 0.95);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .welcome-card h1 {
+                color: #fff;
+            }
+
+            .welcome-card p {
+                color: #ccc;
+            }
+
+            .stat-card {
+                background: rgba(30, 30, 30, 0.9);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .stat-card h3 {
+                color: #fff;
+            }
+
+            .stat-card p {
+                color: #ccc;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">EMS</div>
+                <div class="logo-text">
+                    <h2>Exam Management System</h2>
+                    <p>Super Administrator Dashboard</p>
+                </div>
+            </div>
+            <div class="user-section">
+                <div class="user-info">
+                    <span>Welcome, Super Admin</span>
+                </div>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>⚡ SuperAdmin Control Panel</h1>
+            <p>Manage your institution's hierarchy and user accounts</p>
+        </div>
+
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">🏢</div>
+                <h3>Create Department</h3>
+                <p>Add new departments to your institution</p>
+                <button class="action-btn" onclick="location.href='/superadmin/departments/create'">
+                    <span>Create Department</span>
+                    <div class="btn-lightning"></div>
+                </button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">👨‍💼</div>
+                <h3>Create Principal</h3>
+                <p>Create new Principal account for your institution</p>
+                <button class="action-btn" onclick="location.href='/superadmin/principals/create'">
+                    <span>Create Principal</span>
+                    <div class="btn-lightning"></div>
+                </button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">👥</div>
+                <h3>Create HOD & Assistant</h3>
+                <p>Create Head of Department and Assistant accounts</p>
+                <button class="action-btn" onclick="location.href='/superadmin/hods/create'">
+                    <span>Create HOD Team</span>
+                    <div class="btn-lightning"></div>
+                </button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">📋</div>
+                <h3>Manage Principals</h3>
+                <p>View, edit, and manage all Principal accounts</p>
+                <button class="action-btn" onclick="location.href='/superadmin/principals'">
+                    <span>Manage Principals</span>
+                    <div class="btn-lightning"></div>
+                </button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">📊</div>
+                <h3>Manage HODs</h3>
+                <p>View, edit, and manage department heads</p>
+                <button class="action-btn" onclick="location.href='/superadmin/hods'">
+                    <span>Manage HODs</span>
+                    <div class="btn-lightning"></div>
+                </button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">👤</div>
+                <h3>Manage Assistants</h3>
+                <p>View, edit, and manage all assistants</p>
+                <button class="action-btn" onclick="location.href='/superadmin/assistants'">
+                    <span>Manage Assistants</span>
+                    <div class="btn-lightning"></div>
+                </button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">🏢</div>
+                <h3>Manage Departments</h3>
+                <p>View, edit, and manage all departments</p>
+                <button class="action-btn" onclick="location.href='/superadmin/departments'">
+                    <span>Manage Departments</span>
+                    <div class="btn-lightning"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Assistants - SuperAdmin</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-pink: #ff1493;
+            --neon-green: #39ff14;
+            --neon-orange: #ff6600;
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, var(--neon-blue) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, var(--neon-purple) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, var(--neon-pink) 0%, transparent 50%);
+            opacity: 0.08;
+            z-index: -1;
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .logo-text h2 {
+            color: var(--neon-blue);
+            margin-bottom: 0.2rem;
+        }
+
+        .logo-text p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn, .logout-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            color: white;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, var(--neon-pink), #ff6b6b);
+            color: white;
+        }
+
+        .back-btn:hover, .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .assistants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .assistant-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .assistant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .assistant-card:hover::before {
+            left: 100%;
+        }
+
+        .assistant-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .assistant-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .assistant-info h3 {
+            color: var(--neon-blue);
+            margin-bottom: 0.3rem;
+        }
+
+        .assistant-info p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .assistant-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: white;
+            font-weight: 500;
+        }
+
+        .assistant-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .edit-btn, .delete-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+        }
+
+        .edit-btn {
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            color: white;
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, var(--neon-pink), #ff6b6b);
+            color: white;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+        }
+
+        .empty-state h3 {
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .alert-error {
+            background: rgba(255, 20, 147, 0.1);
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        @media (max-width: 768px) {
+            .assistants-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .page-title h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">EMS</div>
+                <div class="logo-text">
+                    <h2>Exam Management System</h2>
+                    <p>Super Administrator - Manage Assistants</p>
+                </div>
+            </div>
+            <div class="user-section">
+                <a href="/superadmin/dashboard" class="back-btn">← Back to Dashboard</a>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>⚡ Manage Assistants</h1>
+            <p>View, edit, and manage all assistant accounts</p>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <!-- Assistants Grid -->
+        <div th:if="${assistants != null and !assistants.isEmpty()}" class="assistants-grid">
+            <div class="assistant-card" th:each="assistant : ${assistants}">
+                <div class="assistant-header">
+                    <div class="assistant-avatar" th:text="${assistant.firstName?.substring(0,1)?.toUpperCase()}">A</div>
+                    <div class="assistant-info">
+                        <h3 th:text="${assistant.firstName + ' ' + assistant.lastName}">Assistant Name</h3>
+                        <p th:text="${assistant.department?.name ?: 'No Department'}">Department</p>
+                    </div>
+                </div>
+                
+                <div class="assistant-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Employee ID:</span>
+                        <span class="detail-value" th:text="${assistant.employeeId}">A001</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value" th:text="${assistant.email}">assistant@example.com</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone:</span>
+                        <span class="detail-value" th:text="${assistant.phone ?: 'Not provided'}">Phone</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Username:</span>
+                        <span class="detail-value" th:text="${assistant.username}">username</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value" th:text="${assistant.active ? 'Active' : 'Inactive'}">Active</span>
+                    </div>
+                </div>
+                
+                <div class="assistant-actions">
+                    <a th:href="@{/superadmin/assistants/{id}/edit(id=${assistant.id})}" class="edit-btn">Edit</a>
+                    <button class="delete-btn" th:data-id="${assistant.id}" th:data-name="${assistant.firstName + ' ' + assistant.lastName}" onclick="deleteUser(this.dataset.id, this.dataset.name)">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${assistants == null or assistants.isEmpty()}" class="empty-state">
+            <h3>No Assistants Found</h3>
+            <p>No assistant accounts have been created yet. Use the "Create HOD & Assistant" option to add assistants.</p>
+        </div>
+    </div>
+
+    <script>
+        function deleteUser(userId, userName) {
+            if (confirm('Are you sure you want to delete ' + userName + '? This action cannot be undone.')) {
+                // Create a form dynamically and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/superadmin/users/' + userId + '/delete';
+                
+                // Add hidden method field for DELETE
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+                form.appendChild(methodField);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

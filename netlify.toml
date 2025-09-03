@@ -1,0 +1,17 @@
+[build]
+  publish = "target"
+  command = "mvn clean package -DskipTests"
+
+[build.environment]
+  JAVA_VERSION = "17"
+  MAVEN_VERSION = "3.8.6"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

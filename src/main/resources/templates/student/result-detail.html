@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Result Details - Student Dashboard</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-light);
+            background: var(--glass-bg);
+            border-left-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .top-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .question-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .option {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .option.correct {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .option.wrong {
+            background: rgba(255, 71, 87, 0.1);
+            border-color: #ff4757;
+            color: #ff4757;
+        }
+
+        .option.selected {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .top-bar {
+                padding: 1rem;
+            }
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 style="color: var(--neon-blue); font-size: 1.25rem; font-weight: 700;">Student Portal</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;" th:if="${student}">
+                <span th:text="${student.firstName + ' ' + student.lastName}"></span>
+            </p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/student/dashboard" class="nav-item">
+                <span style="margin-right: 0.75rem;">🏠</span> Dashboard
+            </a>
+            <a href="/student/exams" class="nav-item">
+                <span style="margin-right: 0.75rem;">📝</span> Take Exams
+            </a>
+            <a href="/student/results" class="nav-item active">
+                <span style="margin-right: 0.75rem;">📊</span> My Results
+            </a>
+            <a href="/student/profile" class="nav-item">
+                <span style="margin-right: 0.75rem;">👤</span> Profile
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600;">Exam Result Details</h1>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Review your answers and correct solutions</p>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="/student/results" class="btn-secondary">Back to Results</a>
+                <a href="/logout" class="btn-secondary">Logout</a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div style="padding: 2rem;">
+            <!-- Exam Summary -->
+            <div class="glass-card glow-effect" th:if="${result}">
+                <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">📋 Exam Summary</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
+                        <h3 style="color: var(--neon-green); font-size: 1.25rem; font-weight: 700;" th:text="${result.exam.title}">Exam Title</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Exam Name</p>
+                    </div>
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
+                        <h3 style="color: var(--neon-blue); font-size: 1.25rem; font-weight: 700;" th:text="${result.score + '/' + result.totalQuestions}">Score</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Your Score</p>
+                    </div>
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
+                        <h3 style="color: var(--neon-purple); font-size: 1.25rem; font-weight: 700;" th:text="${#numbers.formatDecimal(result.percentage, 1, 1) + '%'}">Percentage</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Percentage</p>
+                    </div>
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
+                        <h3 style="color: var(--neon-orange); font-size: 1.25rem; font-weight: 700;" th:text="${result.grade}">Grade</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Final Grade</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions and Answers -->
+            <div class="glass-card glow-effect" th:if="${questions}">
+                <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">❓ Questions & Answers Review</h2>
+                
+                <div th:each="question, iterStat : ${questions}" class="question-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <h3 style="color: var(--text-light); font-size: 1.1rem; font-weight: 600; flex: 1;">
+                            <span style="color: var(--neon-blue);" th:text="'Q' + ${iterStat.count} + '. '"></span>
+                            <span th:text="${question.questionText}"></span>
+                        </h3>
+                        <div style="margin-left: 1rem;">
+                            <span th:if="${studentAnswers[question.id] == question.correctAnswer}" 
+                                  style="background: var(--neon-green); color: var(--primary-color); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600;">
+                                ✓ CORRECT
+                            </span>
+                            <span th:unless="${studentAnswers[question.id] == question.correctAnswer}" 
+                                  style="background: #ff4757; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600;">
+                                ✗ WRONG
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-left: 1rem;">
+                        <!-- Show student's selected answer first -->
+                        <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--neon-blue); border-radius: 0.5rem;">
+                            <strong style="color: var(--neon-blue);">Your Answer: </strong>
+                            <span th:if="${studentAnswers[question.id]}" th:text="${studentAnswers[question.id]}">Not answered</span>
+                            <span th:unless="${studentAnswers[question.id]}" style="color: var(--text-muted);">Not answered</span>
+                        </div>
+                        
+                        <!-- Show correct answer -->
+                        <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); border-radius: 0.5rem;">
+                            <strong style="color: var(--neon-green);">Correct Answer: </strong>
+                            <span th:text="${question.correctAnswer}"></span>
+                        </div>
+                        
+                        <!-- All Options -->
+                        <div style="margin-top: 1rem;">
+                            <!-- Option A -->
+                            <div th:class="${question.correctAnswer == 'A'} ? 'option correct' : (${studentAnswers[question.id] == 'A'} ? 'option wrong selected' : 'option')">
+                                <strong>A.</strong> <span th:text="${question.optionA}"></span>
+                                <div style="float: right;">
+                                    <span th:if="${question.correctAnswer == 'A'}" style="color: var(--neon-green); font-weight: bold; margin-right: 0.5rem;">✓ Correct</span>
+                                    <span th:if="${studentAnswers[question.id] == 'A'}" style="color: var(--neon-blue); font-weight: bold;">👤 Your Choice</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Option B -->
+                            <div th:class="${question.correctAnswer == 'B'} ? 'option correct' : (${studentAnswers[question.id] == 'B'} ? 'option wrong selected' : 'option')">
+                                <strong>B.</strong> <span th:text="${question.optionB}"></span>
+                                <div style="float: right;">
+                                    <span th:if="${question.correctAnswer == 'B'}" style="color: var(--neon-green); font-weight: bold; margin-right: 0.5rem;">✓ Correct</span>
+                                    <span th:if="${studentAnswers[question.id] == 'B'}" style="color: var(--neon-blue); font-weight: bold;">👤 Your Choice</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Option C -->
+                            <div th:class="${question.correctAnswer == 'C'} ? 'option correct' : (${studentAnswers[question.id] == 'C'} ? 'option wrong selected' : 'option')">
+                                <strong>C.</strong> <span th:text="${question.optionC}"></span>
+                                <div style="float: right;">
+                                    <span th:if="${question.correctAnswer == 'C'}" style="color: var(--neon-green); font-weight: bold; margin-right: 0.5rem;">✓ Correct</span>
+                                    <span th:if="${studentAnswers[question.id] == 'C'}" style="color: var(--neon-blue); font-weight: bold;">👤 Your Choice</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Option D -->
+                            <div th:class="${question.correctAnswer == 'D'} ? 'option correct' : (${studentAnswers[question.id] == 'D'} ? 'option wrong selected' : 'option')">
+                                <strong>D.</strong> <span th:text="${question.optionD}"></span>
+                                <div style="float: right;">
+                                    <span th:if="${question.correctAnswer == 'D'}" style="color: var(--neon-green); font-weight: bold; margin-right: 0.5rem;">✓ Correct</span>
+                                    <span th:if="${studentAnswers[question.id] == 'D'}" style="color: var(--neon-blue); font-weight: bold;">👤 Your Choice</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Questions Message -->
+            <div class="glass-card glow-effect" th:if="${questions == null or questions.empty}" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">❓</div>
+                <h3 style="color: var(--text-light); font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Questions Found</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Unable to load exam questions for review</p>
+                <a href="/student/results" class="btn-primary">Back to Results</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('show');
+        }
+
+        // Show mobile toggle button on small screens
+        function checkScreenSize() {
+            const toggle = document.getElementById('sidebarToggle');
+            if (window.innerWidth <= 768) {
+                if (toggle) toggle.style.display = 'block';
+            } else {
+                if (toggle) toggle.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkScreenSize);
+        checkScreenSize();
+    </script>
+</body>
+</html>

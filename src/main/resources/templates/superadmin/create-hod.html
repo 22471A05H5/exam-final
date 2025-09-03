@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create HOD & Assistant - SuperAdmin</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-pink: #ff1493;
+            --neon-green: #39ff14;
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Lightning Background Effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, var(--neon-blue) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, var(--neon-purple) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, var(--neon-pink) 0%, transparent 50%);
+            opacity: 0.08;
+            animation: lightningPulse 6s ease-in-out infinite alternate;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.02) 50%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, rgba(255, 20, 147, 0.02) 50%, transparent 70%);
+            animation: lightningStrikes 8s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes lightningPulse {
+            0% { opacity: 0.05; transform: scale(1); }
+            100% { opacity: 0.12; transform: scale(1.1); }
+        }
+
+        @keyframes lightningStrikes {
+            0%, 100% { transform: translateX(-100%) rotate(0deg); }
+            50% { transform: translateX(100%) rotate(180deg); }
+        }
+
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--glass-border);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.1),
+                0 0 100px rgba(138, 43, 226, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                rgba(255, 20, 147, 0.1), 
+                transparent);
+            animation: neonSweep 4s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes neonSweep {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 20px rgba(0, 212, 255, 0.3),
+                0 0 40px rgba(138, 43, 226, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.5),
+                0 0 60px rgba(138, 43, 226, 0.3);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.1),
+                0 0 100px rgba(138, 43, 226, 0.05);
+            animation: cardEntrance 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card:nth-child(1) { animation-delay: 0.2s; }
+        .form-card:nth-child(2) { animation-delay: 0.4s; }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                rgba(255, 20, 147, 0.1), 
+                transparent);
+            animation: neonSweep 5s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .form-card h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 
+                0 0 15px var(--neon-blue),
+                0 0 30px var(--neon-purple);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hod-card h2 {
+            text-shadow: 
+                0 0 15px var(--neon-purple),
+                0 0 30px var(--neon-pink);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 0 20px rgba(0, 212, 255, 0.3),
+                inset 0 0 20px rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .hod-card input:focus {
+            border-color: var(--neon-purple);
+            box-shadow: 
+                0 0 20px rgba(138, 43, 226, 0.3),
+                inset 0 0 20px rgba(138, 43, 226, 0.1);
+        }
+
+        .submit-section {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.4),
+                0 0 60px rgba(138, 43, 226, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: all 0.5s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 40px rgba(0, 212, 255, 0.6),
+                0 0 80px rgba(138, 43, 226, 0.4);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            grid-column: 1 / -1;
+        }
+
+        .alert-success {
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+        }
+
+        .alert-error {
+            background: rgba(255, 20, 147, 0.1);
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.2);
+        }
+
+        .dual-form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .dual-form-container .form-group input, 
+        .dual-form-container .form-group textarea, 
+        .dual-form-container .form-group select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.05), 
+                rgba(255, 20, 147, 0.05), 
+                transparent);
+            animation: sectionSweep 8s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes sectionSweep {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .hod-section {
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .assistant-section {
+            border-color: rgba(255, 20, 147, 0.3);
+        }
+
+        .hod-section .section-title {
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        .assistant-section .section-title {
+            color: var(--neon-pink);
+            text-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section .form-group {
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .form-card {
+                padding: 2rem;
+            }
+
+            .dual-form-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h2>⚡ Create HOD & Assistant Team</h2>
+            <a href="/superadmin/dashboard" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <form th:action="@{/superadmin/hods/create}" method="post">
+            
+            <div class="form-card">
+                <h1 class="form-title">⚡ Create HOD & Assistant Team</h1>
+                
+                <div th:if="${success}" class="alert alert-success">
+                    <span th:text="${success}"></span>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-error">
+                    <span th:text="${error}"></span>
+                </div>
+                
+                <!-- Department Selection -->
+                <div class="form-group">
+                    <label for="departmentId">Select Department *</label>
+                    <select id="departmentId" name="departmentId" required>
+                        <option value="">-- Select Department --</option>
+                        <option th:each="dept : ${departments}" th:value="${dept.id}" th:text="${dept.name + ' (' + dept.code + ')'}">Department Name (CODE)</option>
+                    </select>
+                </div>
+                
+                <!-- Side by Side Forms -->
+                <div class="dual-form-container">
+                    <!-- HOD Section -->
+                    <div class="form-section hod-section">
+                        <h2 class="section-title">👨‍💼 Head of Department</h2>
+                        
+                        <div class="form-group">
+                            <label for="hodFirstName">First Name</label>
+                            <input type="text" id="hodFirstName" name="hodFirstName" required 
+                                   placeholder="Enter HOD first name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="hodLastName">Last Name</label>
+                            <input type="text" id="hodLastName" name="hodLastName" required 
+                                   placeholder="Enter HOD last name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="hodEmail">Email Address</label>
+                            <input type="email" id="hodEmail" name="hodEmail" required 
+                                   placeholder="Enter HOD email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="hodUsername">Username</label>
+                            <input type="text" id="hodUsername" name="hodUsername" required 
+                                   placeholder="Enter HOD username">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="hodPassword">Password</label>
+                            <input type="password" id="hodPassword" name="hodPassword" required 
+                                   placeholder="Enter HOD password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="hodPhone">Phone Number</label>
+                            <input type="text" id="hodPhone" name="hodPhone" 
+                                   placeholder="Enter phone (optional)">
+                        </div>
+                    </div>
+                    
+                    <!-- Assistant Section -->
+                    <div class="form-section assistant-section">
+                        <h2 class="section-title">👥 Assistant</h2>
+                        
+                        <div class="form-group">
+                            <label for="assistantFirstName">First Name</label>
+                            <input type="text" id="assistantFirstName" name="assistantFirstName" required 
+                                   placeholder="Enter Assistant first name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="assistantLastName">Last Name</label>
+                            <input type="text" id="assistantLastName" name="assistantLastName" required 
+                                   placeholder="Enter Assistant last name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="assistantEmail">Email Address</label>
+                            <input type="email" id="assistantEmail" name="assistantEmail" required 
+                                   placeholder="Enter Assistant email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="assistantUsername">Username</label>
+                            <input type="text" id="assistantUsername" name="assistantUsername" required 
+                                   placeholder="Enter Assistant username">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="assistantPassword">Password</label>
+                            <input type="password" id="assistantPassword" name="assistantPassword" required 
+                                   placeholder="Enter Assistant password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="assistantPhone">Phone Number</label>
+                            <input type="text" id="assistantPhone" name="assistantPhone" 
+                                   placeholder="Enter phone (optional)">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn">
+                        Create HOD & Assistant Team
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

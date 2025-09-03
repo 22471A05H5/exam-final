@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Exam Generator - Faculty Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .form-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(57, 255, 20, 0.3);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(57, 255, 20, 0.4);
+        }
+
+        .secondary-btn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .secondary-btn:hover {
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .preview-btn {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+        }
+
+        .preview-btn:hover {
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .preview-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .question-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .question-number {
+            color: var(--neon-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .option {
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+
+        .correct-option {
+            background: rgba(57, 255, 20, 0.1);
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid, .form-grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="page-title">AI Exam Generator</h1>
+            <p class="subtitle">Generate exam questions automatically using AI</p>
+        </div>
+
+        <!-- AI Generation Form -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <span>🤖</span>
+                AI Generation Settings
+            </h2>
+            <form id="aiExamForm">
+                <div class="form-group">
+                    <label class="form-label">Exam Title</label>
+                    <input type="text" name="title" class="form-input" placeholder="Enter exam title" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Subject/Topic</label>
+                    <input type="text" name="subject" class="form-input" placeholder="e.g., Data Structures, Mathematics, Physics" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-input" rows="3" placeholder="Enter exam description"></textarea>
+                </div>
+
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">Number of Questions</label>
+                        <input type="number" name="totalQuestions" class="form-input" min="5" max="50" placeholder="e.g., 20" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Difficulty Level</label>
+                        <select name="difficulty" class="form-input" required>
+                            <option value="">Select difficulty</option>
+                            <option value="EASY">Easy</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HARD">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time Limit (minutes)</label>
+                        <input type="number" name="timeLimit" class="form-input" min="5" max="300" placeholder="e.g., 60" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Start Time</label>
+                        <input type="datetime-local" name="startTime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Time</label>
+                        <input type="datetime-local" name="endTime" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="action-btn preview-btn" onclick="generatePreview()">Generate Preview</button>
+                    <button type="submit" class="action-btn" style="display: none;" id="createExamBtn">Create Exam</button>
+                    <a href="/faculty/dashboard" class="action-btn secondary-btn">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section" id="previewSection">
+            <h2 class="section-title">
+                <span>👁️</span>
+                Generated Questions Preview
+            </h2>
+            <div id="questionsPreview"></div>
+            <div class="button-group">
+                <button type="button" class="action-btn" onclick="confirmCreate()">Confirm & Create Exam</button>
+                <button type="button" class="action-btn preview-btn" onclick="regenerateQuestions()">Regenerate Questions</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generatePreview() {
+            const form = document.getElementById('aiExamForm');
+            const formData = new FormData(form);
+            
+            // Validate required fields
+            if (!formData.get('title') || !formData.get('subject') || !formData.get('totalQuestions') || 
+                !formData.get('difficulty') || !formData.get('timeLimit') || !formData.get('startTime') || !formData.get('endTime')) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const subject = formData.get('subject');
+            const difficulty = formData.get('difficulty');
+            const numQuestions = parseInt(formData.get('totalQuestions'));
+
+            // Show loading message
+            document.getElementById('questionsPreview').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--neon-green);">🤖 Generating AI questions using Gemini API... Please wait...</div>';
+            document.getElementById('previewSection').classList.add('show');
+
+            try {
+                // Call backend AI service to generate real questions
+                const response = await fetch('/faculty/api/generate-preview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic: subject,
+                        difficulty: difficulty,
+                        numberOfQuestions: numQuestions
+                    })
+                });
+
+                if (response.ok) {
+                    const questions = await response.json();
+                    displayPreview(questions);
+                    document.getElementById('createExamBtn').style.display = 'inline-block';
+                } else {
+                    throw new Error('Failed to generate questions');
+                }
+            } catch (error) {
+                document.getElementById('questionsPreview').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">❌ Error generating questions: ' + error.message + '</div>';
+            }
+        }
+
+
+        function displayPreview(questions) {
+            const previewDiv = document.getElementById('questionsPreview');
+            previewDiv.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-preview';
+                questionDiv.innerHTML = `
+                    <div class="question-number">Question ${index + 1}</div>
+                    <div class="question-text">${question.questionText}</div>
+                    <div class="option ${question.correctAnswer === 'A' ? 'correct-option' : ''}">A) ${question.optionA}</div>
+                    <div class="option ${question.correctAnswer === 'B' ? 'correct-option' : ''}">B) ${question.optionB}</div>
+                    <div class="option ${question.correctAnswer === 'C' ? 'correct-option' : ''}">C) ${question.optionC}</div>
+                    <div class="option ${question.correctAnswer === 'D' ? 'correct-option' : ''}">D) ${question.optionD}</div>
+                `;
+                previewDiv.appendChild(questionDiv);
+            });
+        }
+
+        function regenerateQuestions() {
+            generatePreview();
+        }
+
+        function confirmCreate() {
+            const form = document.getElementById('aiExamForm');
+            form.action = '/faculty/exams/create/ai';
+            form.method = 'post';
+            
+            // Add hidden field to indicate confirmed creation
+            const hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.name = 'confirmed';
+            hiddenField.value = 'true';
+            form.appendChild(hiddenField);
+            
+            form.submit();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students & Scores - HOD Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #0f3460;
+            --neon-orange: #ff8c00;
+            --neon-yellow: #ffd700;
+            --neon-red: #ff4757;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo {
+            text-align: center;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--glass-bg);
+            border-left-color: var(--neon-orange);
+            transform: translateX(5px);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(45deg, var(--neon-red), #ff6b7a);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+
+        /* Department Info */
+        .department-info {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .department-name {
+            font-size: 1.5rem;
+            color: var(--neon-yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Students Grid */
+        .students-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .student-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
+        }
+
+        .student-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 1rem;
+        }
+
+        .student-info h3 {
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .student-email {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .student-scores {
+            margin-top: 1rem;
+        }
+
+        .scores-header {
+            color: var(--neon-orange);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .exam-name {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .score-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .score-excellent {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .score-good {
+            background: linear-gradient(45deg, var(--neon-yellow), #f39c12);
+            color: var(--primary-color);
+        }
+
+        .score-average {
+            background: linear-gradient(45deg, #e67e22, #d35400);
+            color: white;
+        }
+
+        .score-poor {
+            background: linear-gradient(45deg, var(--neon-red), #c0392b);
+            color: white;
+        }
+
+        .no-scores {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Mobile Responsive */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-text">EMS</div>
+                <div class="logo-subtitle">HOD Panel</div>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/hod/dashboard" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="/hod/assistants" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Assistants</span>
+            </a>
+            <a href="/hod/faculty" class="nav-item">
+                <span class="nav-icon">👨‍🏫</span>
+                <span class="nav-text">Faculty</span>
+            </a>
+            <a href="/hod/students" class="nav-item active">
+                <span class="nav-icon">🎓</span>
+                <span class="nav-text">Students & Scores</span>
+            </a>
+            <a href="/hod/exams" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-text">Exams</span>
+            </a>
+            <a href="/hod/performance" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Performance</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Students & Exam Scores</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <!-- Department Info -->
+        <div th:if="${department}" class="department-info">
+            <div class="department-name" th:text="${department.name}">Department Name</div>
+            <div style="color: var(--text-muted);">View all students and their exam performance</div>
+        </div>
+
+        <!-- Students Container -->
+        <div class="students-container">
+            <div th:if="${students != null and !students.isEmpty()}">
+                <div th:each="student : ${students}" class="student-card">
+                    <div class="student-header">
+                        <div class="student-avatar" th:text="${#strings.substring(student.firstName, 0, 1) + #strings.substring(student.lastName, 0, 1)}">ST</div>
+                        <div class="student-info">
+                            <h3 th:text="${student.firstName + ' ' + student.lastName}">Student Name</h3>
+                            <div class="student-email" th:text="${student.email}">student@email.com</div>
+                        </div>
+                    </div>
+                    
+                    <div class="student-scores">
+                        <div class="scores-header">📊 Exam Scores</div>
+                        <div th:if="${studentResults != null and !studentResults.isEmpty()}">
+                            <div th:each="result : ${studentResults}" 
+                                 th:if="${result.student.id == student.id}" 
+                                 class="score-item">
+                                <div class="exam-name" th:text="${result.exam.title}">Exam Name</div>
+                                <div class="score-badge"
+                                     th:classappend="${result.percentage >= 90} ? 'score-excellent' : 
+                                                    ${result.percentage >= 75} ? 'score-good' : 
+                                                    ${result.percentage >= 50} ? 'score-average' : 'score-poor'"
+                                     th:text="${result.percentage + '%'}">85%</div>
+                            </div>
+                        </div>
+                        <div th:if="${studentResults == null or studentResults.isEmpty() or 
+                                    !#lists.contains(#lists.toList(studentResults.![student.id]), student.id)}" 
+                             class="no-scores">
+                            No exam scores available
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div th:if="${students == null or students.isEmpty()}" class="empty-state">
+                <div class="empty-state-icon">🎓</div>
+                <h3>No Students Found</h3>
+                <p>There are currently no students in this department.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !menuBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

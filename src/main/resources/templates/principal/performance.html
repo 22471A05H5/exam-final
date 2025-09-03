@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Analytics - Principal Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: 0.5rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-light);
+            background: var(--glass-bg);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.2);
+            text-decoration: none;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover::before, .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn, .logout-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            color: white;
+            box-shadow: 0 5px 15px rgba(57, 255, 20, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(57, 255, 20, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Performance Overview */
+        .performance-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .overview-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .overview-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .overview-number.students { color: var(--neon-blue); }
+        .overview-number.average { color: var(--neon-green); }
+        .overview-number.pass-rate { color: var(--neon-orange); }
+        .overview-number.departments { color: var(--neon-purple); }
+
+        .overview-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Department Performance Grid */
+        .department-performance {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .department-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .department-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .department-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .department-card:hover::before {
+            left: 100%;
+        }
+
+        .department-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .department-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .department-code {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value.students { color: var(--neon-blue); }
+        .metric-value.average { color: var(--neon-green); }
+        .metric-value.pass-rate { color: var(--neon-orange); }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .performance-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .performance-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-excellent { background: var(--neon-green); }
+        .status-good { background: var(--neon-blue); }
+        .status-average { background: var(--neon-orange); }
+        .status-poor { background: #ff6b6b; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .performance-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .department-performance {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .performance-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        /* Charts Styles */
+        .charts-section {
+            margin-bottom: 3rem;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-text">EMS</span>
+                <span class="logo-subtitle">Exam Management System</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/principal/dashboard" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="/principal/hods" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">HODs</span>
+            </a>
+            <a href="/principal/assistants" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Assistants</span>
+            </a>
+            <a href="/principal/departments" class="nav-item">
+                <span class="nav-icon">🏢</span>
+                <span class="nav-text">Departments</span>
+            </a>
+            <a href="/principal/students" class="nav-item">
+                <span class="nav-icon">🎓</span>
+                <span class="nav-text">Students</span>
+            </a>
+            <a href="/principal/performance" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Performance</span>
+            </a>
+            <a href="/principal/communication" class="nav-item">
+                <span class="nav-icon">💬</span>
+                <span class="nav-text">Messages</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                <h1 class="page-title">Performance Analytics</h1>
+            </div>
+            <div class="top-bar-actions">
+                <a href="/principal/dashboard" class="back-btn">← Back to Dashboard</a>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+
+        <!-- Performance Content -->
+        <div class="performance-content">
+            <!-- Overall Performance Overview -->
+            <div class="performance-overview">
+                <div class="overview-card">
+                    <div class="overview-number students" th:text="${totalStudents ?: 0}">0</div>
+                    <div class="overview-label">Total Students</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-number average">85.2%</div>
+                    <div class="overview-label">Overall Average</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-number pass-rate">78.5%</div>
+                    <div class="overview-label">Pass Rate</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-number departments" th:text="${departmentPerformance?.size() ?: 0}">0</div>
+                    <div class="overview-label">Active Departments</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section" th:if="${departmentPerformance != null and !departmentPerformance.isEmpty()}">
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Department Performance - Bar Chart</h3>
+                        <canvas id="performanceBarChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">Department Distribution - Pie Chart</h3>
+                        <canvas id="performancePieChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Department Performance Section -->
+            <h2 class="section-title">Department Performance Analysis</h2>
+            
+            <div th:if="${departmentPerformance != null and !departmentPerformance.isEmpty()}" class="department-performance">
+                <div class="department-card" th:each="dept : ${departmentPerformance}">
+                    <div class="department-header">
+                        <h3 class="department-name" th:text="${dept.departmentName}">Department Name</h3>
+                        <span class="department-code" th:text="${dept.departmentCode}">CODE</span>
+                    </div>
+                    
+                    <div class="performance-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value students" th:text="${dept.studentCount}">0</div>
+                            <div class="metric-label">Students</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value average" th:text="${#numbers.formatDecimal(dept.averageScore, 1, 1)} + '%'">0%</div>
+                            <div class="metric-label">Average Score</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value pass-rate" th:text="${#numbers.formatDecimal(dept.passRate, 1, 1)} + '%'">0%</div>
+                            <div class="metric-label">Pass Rate</div>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-bar">
+                        <div class="performance-fill" th:style="'width: ' + ${dept.averageScore} + '%'"></div>
+                    </div>
+                    
+                    <div class="performance-status">
+                        <div class="status-indicator" 
+                             th:classappend="${dept.averageScore >= 85} ? 'status-excellent' : 
+                                           ${dept.averageScore >= 75} ? 'status-good' : 
+                                           ${dept.averageScore >= 60} ? 'status-average' : 'status-poor'"></div>
+                        <span th:text="${dept.averageScore >= 85} ? 'Excellent Performance' : 
+                                      ${dept.averageScore >= 75} ? 'Good Performance' : 
+                                      ${dept.averageScore >= 60} ? 'Average Performance' : 'Needs Improvement'">Performance Status</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div th:if="${departmentPerformance == null or departmentPerformance.isEmpty()}" class="empty-state">
+                <h3>No Performance Data Available</h3>
+                <p>Performance analytics will be available once students start taking exams and results are recorded.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !menuBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Animate performance bars on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const performanceFills = document.querySelectorAll('.performance-fill');
+            performanceFills.forEach(fill => {
+                const width = fill.style.width;
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.width = width;
+                }, 500);
+            });
+
+            // Initialize charts
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            const chartLabels = /*[[${chartLabels}]]*/ '';
+            const chartData = /*[[${chartData}]]*/ '';
+            const chartColors = /*[[${chartColors}]]*/ '';
+
+            if (chartLabels && chartData) {
+                const labels = chartLabels.split(',').map(label => label.replace(/'/g, ''));
+                const data = chartData.split(',').map(Number);
+                const colors = chartColors.split(',').map(color => color.replace(/'/g, ''));
+
+                // Bar Chart
+                const barCtx = document.getElementById('performanceBarChart');
+                if (barCtx) {
+                    new Chart(barCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Average Score (%)',
+                                data: data,
+                                backgroundColor: colors,
+                                borderColor: colors.map(color => color + '80'),
+                                borderWidth: 2,
+                                borderRadius: 8,
+                                borderSkipped: false,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#ffffff'
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: {
+                                        color: '#ffffff'
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#ffffff'
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Pie Chart
+                const pieCtx = document.getElementById('performancePieChart');
+                if (pieCtx) {
+                    new Chart(pieCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: data,
+                                backgroundColor: colors,
+                                borderColor: '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: '#ffffff',
+                                        padding: 20
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + '%';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

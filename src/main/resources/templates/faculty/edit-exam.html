@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Exam - Faculty Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/principal-dashboard.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Faculty Panel</h2>
+                <p th:text="${faculty.firstName + ' ' + faculty.lastName}">Faculty Name</p>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="/faculty/dashboard">📊 Dashboard</a></li>
+                <li><a href="/faculty/exams" class="active">📝 My Exams</a></li>
+                <li><a href="/faculty/exams/create">➕ Create Exam</a></li>
+                <li><a href="/faculty/students">👥 Students</a></li>
+                <li><a href="/logout">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div style="display: flex; align-items: center;">
+                    <button onclick="toggleSidebar()" class="btn-secondary" style="margin-right: 1rem; display: none;" id="sidebarToggle">
+                        ☰
+                    </button>
+                    <h1>Edit Exam</h1>
+                </div>
+                <div class="user-info">
+                    <span th:text="${faculty.department.name}">Department</span>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 2rem;">
+                <!-- Success/Error Messages -->
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+                <!-- Edit Exam Form -->
+                <div class="glass-card glow-effect">
+                    <h2 style="color: var(--text-light); margin-bottom: 1.5rem;">✏️ Edit Exam Details</h2>
+                    
+                    <form th:action="@{/faculty/exams/{id}/edit(id=${exam.id})}" method="post">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">Exam Title</label>
+                                <input type="text" name="title" th:value="${exam.title}" required
+                                       class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                       placeholder="Enter exam title">
+                            </div>
+
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">Time Limit (minutes)</label>
+                                <input type="number" name="timeLimit" th:value="${exam.timeLimit}" required min="5" max="300" id="timeLimit"
+                                       class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                       placeholder="Time in minutes">
+                                <p class="text-blue-200 text-xs mt-1">Current: <span th:text="${exam.timeLimit}">0</span> minutes</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <label class="block text-white text-sm font-medium mb-2">Description</label>
+                            <textarea name="description" th:text="${exam.description}" required rows="3"
+                                      class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                                      placeholder="Enter exam description"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="margin-top: 1rem;">
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">Start Time</label>
+                                <input type="datetime-local" name="startTime" th:value="${#temporals.format(exam.startTime, 'yyyy-MM-dd''T''HH:mm')}" required
+                                       class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            </div>
+
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">End Time</label>
+                                <input type="datetime-local" name="endTime" th:value="${#temporals.format(exam.endTime, 'yyyy-MM-dd''T''HH:mm')}" required
+                                       class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn-primary">
+                                💾 Update Exam
+                            </button>
+                            <a th:href="@{/faculty/exams}" class="btn-secondary">
+                                ❌ Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Current Exam Info -->
+                <div class="glass-card" style="margin-top: 2rem;">
+                    <h3 style="color: var(--text-light); margin-bottom: 1rem;">📋 Current Exam Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="stat-card">
+                            <div class="stat-number" th:text="${exam.totalQuestions}">0</div>
+                            <div class="stat-label">Total Questions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" th:text="${exam.timeLimit + ' mins'}">0 mins</div>
+                            <div class="stat-label">Time Limit</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" th:text="${exam.isActive ? 'Active' : 'Inactive'}">Status</div>
+                            <div class="stat-label">Current Status</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; padding: 1rem; background: var(--glass-bg); border-radius: 0.5rem; border: 1px solid var(--glass-border);">
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">
+                            ⚠️ <strong>Note:</strong> Editing exam details will not affect students who have already started or completed the exam.
+                            Questions can be managed separately using the "Questions" button.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="glass-card" style="margin-top: 2rem;">
+                    <h3 style="color: var(--text-light); margin-bottom: 1rem;">🚀 Quick Actions</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a th:href="@{/faculty/exams/{id}/questions/add(id=${exam.id})}" class="btn-primary">
+                            📝 Manage Questions
+                        </a>
+                        <a th:href="@{/faculty/exams/{id}/results(id=${exam.id})}" class="btn-secondary">
+                            📊 View Results
+                        </a>
+                        <a th:href="@{/faculty/exams}" class="btn-secondary">
+                            📋 Back to Exams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Show/hide sidebar toggle button based on screen size
+        function updateSidebarToggle() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (window.innerWidth <= 768) {
+                sidebarToggle.style.display = 'block';
+            } else {
+                sidebarToggle.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('collapsed');
+                document.getElementById('mainContent').classList.remove('expanded');
+            }
+        }
+
+        window.addEventListener('resize', updateSidebarToggle);
+        updateSidebarToggle();
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

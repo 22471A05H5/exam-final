@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Exam Upload - Faculty Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .form-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--glass-border);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.05);
+        }
+
+        .file-upload.dragover {
+            border-color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .upload-text {
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(57, 255, 20, 0.3);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(57, 255, 20, 0.4);
+        }
+
+        .secondary-btn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .secondary-btn:hover {
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .csv-format {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .format-title {
+            color: var(--neon-orange);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .format-example {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="page-title">CSV Exam Upload</h1>
+            <p class="subtitle">Upload questions in bulk using CSV file format</p>
+        </div>
+
+        <!-- CSV Upload Form -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <span>📄</span>
+                Exam Details & CSV Upload
+            </h2>
+            <form action="/faculty/exams/create/csv" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label">Exam Title</label>
+                    <input type="text" name="title" class="form-input" placeholder="Enter exam title" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-input" rows="3" placeholder="Enter exam description"></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Time Limit (minutes)</label>
+                        <input type="number" name="timeLimit" class="form-input" min="5" max="300" placeholder="e.g., 60" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Total Questions</label>
+                        <input type="number" name="totalQuestions" class="form-input" min="1" max="100" placeholder="Will be auto-calculated from CSV" readonly>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Start Time</label>
+                        <input type="datetime-local" name="startTime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Time</label>
+                        <input type="datetime-local" name="endTime" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Upload CSV File</label>
+                    <div class="file-upload" onclick="document.getElementById('csvFile').click()">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">Click to select CSV file</div>
+                        <div class="upload-hint">or drag and drop your file here</div>
+                        <input type="file" id="csvFile" name="csvFile" accept=".csv" style="display: none;" required onchange="updateFileName(this)">
+                    </div>
+                    <div id="fileName" style="margin-top: 1rem; color: var(--neon-green); text-align: center; display: none;"></div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="action-btn">Upload & Create Exam</button>
+                    <a href="/faculty/dashboard" class="action-btn secondary-btn">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- CSV Format Guide -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <span>📋</span>
+                CSV Format Guide
+            </h2>
+            <div class="csv-format">
+                <div class="format-title">Required CSV Format:</div>
+                <div class="format-example">
+Question,Option A,Option B,Option C,Option D,Correct Answer,Explanation
+"What is 2+2?","4","3","5","6","A","Basic arithmetic operation"
+"Capital of France?","Paris","London","Berlin","Madrid","A","Paris is the capital city of France"
+"Java is?","Programming Language","Database","OS","Browser","A","Java is a popular programming language"
+                </div>
+                <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                    <strong>Notes:</strong>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>First row must be the header</li>
+                        <li>Correct Answer should be A, B, C, or D</li>
+                        <li>Explanation column is optional</li>
+                        <li>Use quotes for text containing commas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateFileName(input) {
+            const fileName = document.getElementById('fileName');
+            if (input.files.length > 0) {
+                fileName.textContent = `Selected: ${input.files[0].name}`;
+                fileName.style.display = 'block';
+                
+                // Auto-calculate total questions from CSV
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n').filter(line => line.trim() !== '');
+                    const questionCount = Math.max(0, lines.length - 1); // Subtract header
+                    document.querySelector('input[name="totalQuestions"]').value = questionCount;
+                };
+                reader.readAsText(file);
+            } else {
+                fileName.style.display = 'none';
+            }
+        }
+
+        // Drag and drop functionality
+        const fileUpload = document.querySelector('.file-upload');
+        
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+        
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('dragover');
+        });
+        
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].name.endsWith('.csv')) {
+                document.getElementById('csvFile').files = files;
+                updateFileName(document.getElementById('csvFile'));
+            }
+        });
+    </script>
+</body>
+</html>

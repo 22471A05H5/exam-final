@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View HODs - SuperAdmin</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-pink: #ff1493;
+            --neon-green: #39ff14;
+            --neon-orange: #ff6600;
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Lightning Background Effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, var(--neon-blue) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, var(--neon-purple) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, var(--neon-pink) 0%, transparent 50%);
+            opacity: 0.08;
+            animation: lightningPulse 6s ease-in-out infinite alternate;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.02) 50%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, rgba(255, 20, 147, 0.02) 50%, transparent 70%);
+            animation: lightningStrikes 8s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes lightningPulse {
+            0% { opacity: 0.05; transform: scale(1); }
+            100% { opacity: 0.12; transform: scale(1.1); }
+        }
+
+        @keyframes lightningStrikes {
+            0%, 100% { transform: translateX(-100%) rotate(0deg); }
+            50% { transform: translateX(100%) rotate(180deg); }
+        }
+
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--glass-border);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.1),
+                0 0 100px rgba(138, 43, 226, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                rgba(255, 20, 147, 0.1), 
+                transparent);
+            animation: neonSweep 4s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes neonSweep {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 20px rgba(0, 212, 255, 0.3),
+                0 0 40px rgba(138, 43, 226, 0.2);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.5),
+                0 0 60px rgba(138, 43, 226, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 
+                0 0 15px var(--neon-purple),
+                0 0 30px var(--neon-pink);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        .hod-title {
+            text-shadow: 
+                0 0 15px var(--neon-blue),
+                0 0 30px var(--neon-purple);
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-purple); }
+            100% { text-shadow: 0 0 25px var(--neon-blue), 0 0 50px var(--neon-purple); }
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .user-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.1),
+                0 0 60px rgba(138, 43, 226, 0.05);
+            transition: all 0.3s ease;
+            animation: cardEntrance 1s ease-out both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card:nth-child(odd) { animation-delay: 0.2s; }
+        .user-card:nth-child(even) { animation-delay: 0.4s; }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                rgba(255, 20, 147, 0.1), 
+                transparent);
+            transition: all 0.5s ease;
+            z-index: 0;
+        }
+
+        .user-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.2),
+                0 0 100px rgba(138, 43, 226, 0.1);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .user-card:hover::before {
+            left: 100%;
+        }
+
+        .assistant-card {
+            border-color: rgba(255, 20, 147, 0.3);
+        }
+
+        .assistant-card:hover {
+            border-color: rgba(255, 20, 147, 0.5);
+            box-shadow: 
+                0 0 50px rgba(255, 20, 147, 0.2),
+                0 0 100px rgba(138, 43, 226, 0.1);
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.4),
+                0 0 60px rgba(138, 43, 226, 0.2);
+            animation: avatarFloat 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+
+        .assistant-card .user-avatar {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink));
+            box-shadow: 
+                0 0 30px rgba(255, 20, 147, 0.4),
+                0 0 60px rgba(138, 43, 226, 0.2);
+        }
+
+        @keyframes avatarFloat {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .user-info {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-name {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .user-role {
+            color: var(--neon-green);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .assistant-card .user-role {
+            color: var(--neon-pink);
+        }
+
+        .user-details {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .edit-btn {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, var(--neon-pink), #ff6b6b);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.3);
+            cursor: pointer;
+            border: none;
+            pointer-events: auto;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.5);
+        }
+
+        .delete-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.4);
+        }
+
+        .no-users {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            margin: 3rem 0;
+            grid-column: 1 / -1;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .alert-success {
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+        }
+
+        .alert-error {
+            background: rgba(255, 20, 147, 0.1);
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .user-card {
+                padding: 1.5rem;
+            }
+            
+            .user-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<script>
+function deleteUser(userId, userType) {
+    if (confirm('Are you sure you want to delete this ' + userType + '?')) {
+        // Create a form and submit it
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/superadmin/users/' + userId + '/delete';
+        
+        // No CSRF token needed for delete operation
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+    <div class="header">
+        <div class="header-content">
+            <h2>📊 HODs & Assistants Management</h2>
+            <a href="/superadmin/dashboard" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div th:if="${success}" class="alert alert-success">
+            <span th:text="${success}"></span>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-error">
+            <span th:text="${error}"></span>
+        </div>
+        
+        <!-- HODs Section -->
+        <h2 class="section-title hod-title">👨‍💼 Heads of Department</h2>
+        <div class="users-grid">
+            <div th:if="${#lists.isEmpty(hods)}" class="no-users">
+                No HODs found. <a href="/superadmin/hods/create" style="color: var(--neon-blue);">Create one now</a>
+            </div>
+            
+            <div th:each="hod : ${hods}" class="user-card">
+                <div class="user-avatar">👨‍💼</div>
+                <div class="user-info">
+                    <div class="user-name" th:text="${hod.firstName + ' ' + hod.lastName}"></div>
+                    <div class="user-role">Head of Department</div>
+                    <div class="user-details">
+                        <div><strong>Username:</strong> <span th:text="${hod.username}"></span></div>
+                        <div><strong>Email:</strong> <span th:text="${hod.email}"></span></div>
+                        <div th:if="${hod.phone}"><strong>Phone:</strong> <span th:text="${hod.phone}"></span></div>
+                        <div><strong>Employee ID:</strong> <span th:text="${hod.employeeId}"></span></div>
+                        <div><strong>Status:</strong> 
+                            <span th:text="${hod.active ? 'Active' : 'Inactive'}" 
+                                  th:class="${hod.active ? 'text-success' : 'text-danger'}"></span>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <a th:href="@{/superadmin/users/{id}/edit(id=${hod.id})}" class="action-btn edit-btn">
+                            Edit
+                        </a>
+                        <button type="button" class="action-btn delete-btn" 
+                                th:data-id="${hod.id}" th:data-type="HOD" onclick="deleteUser(this.dataset.id, this.dataset.type)"
+                                style="background: linear-gradient(45deg, #ff1493, #ff6b6b) !important; 
+                                       color: white !important; 
+                                       border: none !important; 
+                                       cursor: pointer !important;">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assistants Section -->
+        <h2 class="section-title">👥 Assistants</h2>
+        <div class="users-grid">
+            <div th:if="${#lists.isEmpty(assistants)}" class="no-users">
+                No assistants found. <a href="/superadmin/hods/create" style="color: var(--neon-pink);">Create one now</a>
+            </div>
+            
+            <div th:each="assistant : ${assistants}" class="user-card assistant-card">
+                <div class="user-avatar">👥</div>
+                <div class="user-info">
+                    <div class="user-name" th:text="${assistant.firstName + ' ' + assistant.lastName}"></div>
+                    <div class="user-role">Assistant</div>
+                    <div class="user-details">
+                        <div><strong>Username:</strong> <span th:text="${assistant.username}"></span></div>
+                        <div><strong>Email:</strong> <span th:text="${assistant.email}"></span></div>
+                        <div th:if="${assistant.phone}"><strong>Phone:</strong> <span th:text="${assistant.phone}"></span></div>
+                        <div><strong>Employee ID:</strong> <span th:text="${assistant.employeeId}"></span></div>
+                        <div><strong>Status:</strong> 
+                            <span th:text="${assistant.active ? 'Active' : 'Inactive'}" 
+                                  th:class="${assistant.active ? 'text-success' : 'text-danger'}"></span>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <a th:href="@{/superadmin/users/{id}/edit(id=${assistant.id})}" class="action-btn edit-btn">
+                            Edit
+                        </a>
+                        <button type="button" class="action-btn delete-btn" 
+                                th:data-id="${assistant.id}" th:data-type="Assistant" onclick="deleteUser(this.dataset.id, this.dataset.type)"
+                                style="background: linear-gradient(45deg, #ff1493, #ff6b6b) !important; 
+                                       color: white !important; 
+                                       border: none !important; 
+                                       cursor: pointer !important;">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

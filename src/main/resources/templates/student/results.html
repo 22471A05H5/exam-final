@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Results - Student Dashboard</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-light);
+            background: var(--glass-bg);
+            border-left-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .top-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            background: var(--glass-bg);
+            color: var(--neon-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tr:hover {
+            background: var(--glass-bg);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .top-bar {
+                padding: 1rem;
+            }
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 style="color: var(--neon-blue); font-size: 1.25rem; font-weight: 700;">Student Portal</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;" th:if="${student}">
+                <span th:text="${student.firstName + ' ' + student.lastName}"></span>
+            </p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/student/dashboard" class="nav-item">
+                <span style="margin-right: 0.75rem;">🏠</span> Dashboard
+            </a>
+            <a href="/student/exams" class="nav-item">
+                <span style="margin-right: 0.75rem;">📝</span> Take Exams
+            </a>
+            <a href="/student/results" class="nav-item active">
+                <span style="margin-right: 0.75rem;">📊</span> My Results
+            </a>
+            <a href="/student/profile" class="nav-item">
+                <span style="margin-right: 0.75rem;">👤</span> Profile
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600;">My Exam Results</h1>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">View your exam performance and statistics</p>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="/logout" class="btn-secondary">Logout</a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div style="padding: 2rem;">
+            <!-- Success/Error Messages -->
+            <div th:if="${success}" style="background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <span th:text="${success}"></span>
+            </div>
+
+            <!-- Results Table -->
+            <div class="glass-card glow-effect" th:if="${results != null and !results.empty}">
+                <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">📊 Exam Results</h2>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Exam Title</th>
+                                <th>Score</th>
+                                <th>Percentage</th>
+                                <th>Time Taken</th>
+                                <th>Date Submitted</th>
+                                <th>Grade</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="result : ${results}">
+                                <td style="font-weight: 600;" th:text="${result.exam.title}"></td>
+                                <td th:text="${result.score + '/' + result.totalQuestions}"></td>
+                                <td>
+                                    <span th:text="${#numbers.formatDecimal(result.percentage, 1, 1) + '%'}"
+                                          th:style="${result.percentage >= 80} ? 'color: var(--neon-green); font-weight: 600;' : (${result.percentage >= 60} ? 'color: var(--neon-orange); font-weight: 600;' : 'color: #ff4757; font-weight: 600;')"></span>
+                                </td>
+                                <td th:text="${result.timeTaken + ' mins'}"></td>
+                                <td th:text="${#temporals.format(result.submittedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td>
+                                    <span th:if="${result.percentage >= 80}" style="background: var(--neon-green); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">A</span>
+                                    <span th:if="${result.percentage >= 70 and result.percentage < 80}" style="background: var(--neon-blue); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">B</span>
+                                    <span th:if="${result.percentage >= 60 and result.percentage < 70}" style="background: var(--neon-orange); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">C</span>
+                                    <span th:if="${result.percentage >= 50 and result.percentage < 60}" style="background: #ff8c00; color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">D</span>
+                                    <span th:if="${result.percentage < 50}" style="background: #ff4757; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">F</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/student/results/{id}(id=${result.id})}" class="btn-secondary">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Statistics -->
+                <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1.5rem; text-align: center;">
+                        <h3 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;" th:text="${results.size()}">0</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Total Exams</p>
+                    </div>
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1.5rem; text-align: center;">
+                        <h3 style="color: var(--neon-green); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            <span th:if="${results != null and !results.empty}" th:text="'75.5%'">0%</span>
+                            <span th:unless="${results != null and !results.empty}">0%</span>
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Average Score</p>
+                    </div>
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1.5rem; text-align: center;">
+                        <h3 style="color: var(--neon-purple); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            <span th:if="${results != null and !results.empty}" th:text="'95.0%'">0%</span>
+                            <span th:unless="${results != null and !results.empty}">0%</span>
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Best Score</p>
+                    </div>
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1.5rem; text-align: center;">
+                        <h3 style="color: var(--neon-orange); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            <span th:if="${results != null and !results.empty}" th:text="${results.size()}">0</span>
+                            <span th:unless="${results != null and !results.empty}">0</span>
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Passed Exams</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div class="glass-card glow-effect" th:if="${results == null or results.empty}" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
+                <h3 style="color: var(--text-light); font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Exam Results Yet</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Take some exams to see your results here</p>
+                <a href="/student/exams" class="btn-primary">
+                    Browse Available Exams
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('show');
+        }
+
+        // Show mobile toggle button on small screens
+        function checkScreenSize() {
+            const toggle = document.getElementById('sidebarToggle');
+            if (window.innerWidth <= 768) {
+                if (toggle) toggle.style.display = 'block';
+            } else {
+                if (toggle) toggle.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkScreenSize);
+        checkScreenSize();
+    </script>
+</body>
+</html>

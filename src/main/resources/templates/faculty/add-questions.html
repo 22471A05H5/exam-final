@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Questions - Faculty Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-green: #39ff14;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border: 1px solid var(--glass-border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .alert-success {
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-error {
+            background: rgba(255, 20, 57, 0.1);
+            border: 1px solid #ff1439;
+            color: #ff1439;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Add Questions</h1>
+                <p class="text-blue-200" th:if="${exam}">Exam: <span th:text="${exam.title}"></span></p>
+                <p class="text-blue-200" th:if="${exam}">Target Questions: <span th:text="${exam.totalQuestions}"></span></p>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div th:if="${success}" class="alert-success">
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert-error">
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Add Question Form -->
+            <div class="glass-card rounded-lg p-8 mb-8">
+                <h2 class="text-2xl font-bold text-white mb-6">Add New Question</h2>
+                <form th:action="@{/faculty/exams/{id}/questions/add(id=${exam.id})}" method="post" class="space-y-6">
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">Question Text</label>
+                        <textarea name="questionText" rows="3" required class="form-input"
+                                  placeholder="Enter your question here..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Option A</label>
+                            <input type="text" name="optionA" required class="form-input" placeholder="Option A">
+                        </div>
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Option B</label>
+                            <input type="text" name="optionB" required class="form-input" placeholder="Option B">
+                        </div>
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Option C</label>
+                            <input type="text" name="optionC" required class="form-input" placeholder="Option C">
+                        </div>
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Option D</label>
+                            <input type="text" name="optionD" required class="form-input" placeholder="Option D">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Correct Answer</label>
+                            <select name="correctAnswer" required class="form-input">
+                                <option value="">Select correct answer</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Explanation (Optional)</label>
+                            <input type="text" name="explanation"
+                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                   placeholder="Brief explanation">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">
+                            Add Question
+                        </button>
+                        <a href="/faculty/exams" class="btn-secondary" style="flex: 1; text-align: center;">
+                            Finish & View Exam
+                        </a>
+                    </div>
+                </form>
+                
+                <!-- Cleanup Placeholder Questions -->
+                <form th:action="@{/faculty/exams/{id}/cleanup-questions(id=${exam.id})}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn-warning" style="width: 100%;" onclick="return confirm('This will remove all placeholder/generic questions. Continue?')">
+                        🧹 Clean Up Placeholder Questions
+                    </button>
+                </form>
+            </div>
+
+            <!-- Existing Questions -->
+            <div class="glass-card rounded-lg p-8" th:if="${existingQuestions != null and !existingQuestions.empty}">
+                <h2 class="text-2xl font-bold text-white mb-6">Added Questions</h2>
+                <div class="space-y-4">
+                    <div th:each="question, iterStat : ${existingQuestions}" class="bg-white/10 rounded-lg p-4">
+                        <h3 class="text-white font-medium mb-2">
+                            Question <span th:text="${question.questionNumber}"></span>: 
+                            <span th:text="${question.questionText}"></span>
+                        </h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm text-blue-200">
+                            <div>A) <span th:text="${question.optionA}"></span></div>
+                            <div>B) <span th:text="${question.optionB}"></span></div>
+                            <div>C) <span th:text="${question.optionC}"></span></div>
+                            <div>D) <span th:text="${question.optionD}"></span></div>
+                        </div>
+                        <div class="mt-2 text-green-300 text-sm">
+                            Correct Answer: <span th:text="${question.correctAnswer}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

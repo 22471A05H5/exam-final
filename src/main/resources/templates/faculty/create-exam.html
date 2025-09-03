@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam - Faculty Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Create New Exam</h1>
+                <p class="text-blue-200" th:if="${department}">Department: <span th:text="${department.name}"></span></p>
+            </div>
+
+            <!-- Form -->
+            <div class="glass-card rounded-lg p-8">
+                <form action="/faculty/exams/create" method="post" class="space-y-6">
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">Exam Title</label>
+                        <input type="text" name="title" required 
+                               class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               placeholder="Enter exam title">
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">Description</label>
+                        <textarea name="description" rows="3"
+                                  class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                  placeholder="Enter exam description"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Total Questions</label>
+                            <input type="number" name="totalQuestions" id="totalQuestions" required min="1" max="100"
+                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                   placeholder="Number of questions" onchange="updateTimeSuggestion()">
+                        </div>
+
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Time Limit (minutes)</label>
+                            <input type="number" name="timeLimit" id="timeLimit" required min="5" max="300"
+                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                   placeholder="Time in minutes">
+                            <p class="text-blue-200 text-xs mt-1" id="timeSuggestion">Suggested: 2 minutes per question</p>
+                            <div class="mt-2 p-2 bg-blue-500/20 rounded border border-blue-400/30">
+                                <p class="text-blue-200 text-xs">⏰ Students will see a countdown timer during the exam</p>
+                                <p class="text-blue-200 text-xs">🔄 Exam will auto-submit when time expires</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">Start Time</label>
+                            <input type="datetime-local" name="startTime" required
+                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-white text-sm font-medium mb-2">End Time</label>
+                            <input type="datetime-local" name="endTime" required
+                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">Question Creation Method</label>
+                        <select name="examType" required
+                                class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option value="">Select method</option>
+                            <option value="MANUAL">Manual Entry</option>
+                            <option value="CSV_UPLOAD">CSV Upload</option>
+                            <option value="AI_GENERATED">AI Generated</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="submit" 
+                                class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                            Create Exam
+                        </button>
+                        <a href="/faculty/dashboard" 
+                           class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateTimeSuggestion() {
+            const totalQuestions = document.getElementById('totalQuestions').value;
+            const timeLimitInput = document.getElementById('timeLimit');
+            const timeSuggestion = document.getElementById('timeSuggestion');
+            
+            if (totalQuestions && totalQuestions > 0) {
+                // Calculate suggested time: 2 minutes per question
+                const suggestedTime = totalQuestions * 2;
+                timeSuggestion.textContent = `Suggested: ${suggestedTime} minutes (2 min per question)`;
+                
+                // Auto-fill time limit if empty
+                if (!timeLimitInput.value) {
+                    timeLimitInput.value = suggestedTime;
+                }
+            } else {
+                timeSuggestion.textContent = 'Suggested: 2 minutes per question';
+            }
+        }
+        
+        // Set default start time to current time
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.querySelector('input[name="startTime"]').value = now.toISOString().slice(0, 16);
+            
+            // Set default end time to 1 hour from now
+            const endTime = new Date(now.getTime() + 60 * 60 * 1000);
+            document.querySelector('input[name="endTime"]').value = endTime.toISOString().slice(0, 16);
+        });
+    </script>
+</body>
+</html>

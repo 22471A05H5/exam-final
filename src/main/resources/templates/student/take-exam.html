@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Exam - Student Dashboard</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-light);
+            background: var(--glass-bg);
+            border-left-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .top-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .timer {
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .timer.warning {
+            color: #ff8c00;
+            text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+        }
+
+        .timer.danger {
+            color: #ff1439;
+            text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .question-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .question-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-label:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        .option-label input[type="radio"] {
+            margin-right: 1rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--neon-blue);
+        }
+
+        .option-text {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .top-bar {
+                padding: 1rem;
+            }
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 style="color: var(--neon-blue); font-weight: 700; font-size: 1.5rem;">Student Panel</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Taking Exam</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/student/dashboard" class="nav-item">
+                <span style="margin-right: 0.75rem;">🏠</span> Dashboard
+            </a>
+            <a href="/student/exams" class="nav-item active">
+                <span style="margin-right: 0.75rem;">📝</span> Take Exams
+            </a>
+            <a href="/student/results" class="nav-item">
+                <span style="margin-right: 0.75rem;">📊</span> My Results
+            </a>
+            <a href="/student/profile" class="nav-item">
+                <span style="margin-right: 0.75rem;">👤</span> Profile
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div style="display: flex; align-items: center;">
+                <button onclick="toggleSidebar()" class="btn-secondary" style="margin-right: 1rem; display: none;" id="sidebarToggle">
+                    ☰
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="color: var(--text-light); font-size: 1.75rem; font-weight: 600;" th:text="${exam.title}">Exam Title</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;" th:text="${exam.description}">Exam Description</p>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
+                        <span>📝 <span th:text="${exam.totalQuestions}">0</span> Questions</span>
+                        <span>⏱️ <span th:text="${exam.timeLimit}">0</span> Minutes Total</span>
+                    </div>
+                </div>
+                <div style="text-align: center; background: var(--glass-bg); padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--glass-border);">
+                    <div class="timer" id="timer">--:--</div>
+                    <p style="color: var(--text-muted); font-size: 0.75rem;">Time Remaining</p>
+                    <p style="color: var(--neon-blue); font-size: 0.625rem; margin-top: 0.25rem;">Auto-submit when time expires</p>
+                </div>
+                <a href="/student/dashboard" class="btn-secondary" onclick="return confirm('Are you sure you want to exit? Your progress will be lost.')">Exit Exam</a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 2rem;">
+            <!-- Exam Form -->
+            <form th:action="@{/student/exams/{id}/submit(id=${exam.id})}" method="post" id="examForm">
+                <input type="hidden" name="startTime" th:value="${#dates.createNow().time}" id="startTimeInput">
+                
+                <!-- Questions -->
+                <div th:each="question, iterStat : ${questions}" class="question-card glow-effect">
+                    <h3 class="question-title">
+                        Question <span th:text="${question.questionNumber}"></span>: 
+                        <span th:text="${question.questionText}"></span>
+                    </h3>
+                    
+                    <div>
+                        <label class="option-label">
+                            <input type="radio" th:name="'question_' + ${question.id}" value="A">
+                            <span class="option-text">A) <span th:text="${question.optionA}"></span></span>
+                        </label>
+                        
+                        <label class="option-label">
+                            <input type="radio" th:name="'question_' + ${question.id}" value="B">
+                            <span class="option-text">B) <span th:text="${question.optionB}"></span></span>
+                        </label>
+                        
+                        <label class="option-label">
+                            <input type="radio" th:name="'question_' + ${question.id}" value="C">
+                            <span class="option-text">C) <span th:text="${question.optionC}"></span></span>
+                        </label>
+                        
+                        <label class="option-label">
+                            <input type="radio" th:name="'question_' + ${question.id}" value="D">
+                            <span class="option-text">D) <span th:text="${question.optionD}"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="glass-card glow-effect" style="text-align: center;">
+                    <button type="submit" onclick="return confirmSubmit()" class="btn-primary" style="font-size: 1.125rem; padding: 1rem 2rem;">
+                        Submit Exam
+                    </button>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 1rem;">Make sure you have answered all questions before submitting</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Timer functionality
+        let timeRemaining = /*[[${timeRemaining}]]*/ 60 * 60; // Time in seconds
+        const timerElement = document.getElementById('timer');
+        let timerInterval;
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                alert('⏰ Time is up! Your exam is being submitted automatically.');
+                
+                // Disable all form inputs to prevent further changes
+                const formInputs = document.querySelectorAll('#examForm input, #examForm textarea, #examForm select');
+                formInputs.forEach(input => input.disabled = true);
+                
+                // Auto-submit the form
+                document.getElementById('examForm').submit();
+                return;
+            }
+            
+            // Change timer color when time is running low
+            if (timeRemaining <= 300) { // 5 minutes - critical
+                timerElement.className = 'timer danger';
+                timerElement.style.color = '#ff1439';
+                timerElement.style.animation = 'pulse 1s infinite';
+            } else if (timeRemaining <= 600) { // 10 minutes - warning
+                timerElement.className = 'timer warning';
+                timerElement.style.color = '#ff8c00';
+            } else {
+                timerElement.className = 'timer';
+                timerElement.style.color = 'var(--neon-blue)';
+                timerElement.style.animation = 'none';
+            }
+            
+            timeRemaining--;
+            checkTimeWarnings(); // Check for time warnings
+        }
+        
+        // Update timer every second
+        timerInterval = setInterval(updateTimer, 1000);
+        updateTimer(); // Initial call
+        
+        // Set start time
+        document.getElementById('startTimeInput').value = Date.now();
+        
+        // Confirm submit
+        function confirmSubmit() {
+            if (timeRemaining > 0) {
+                return confirm('Are you sure you want to submit your exam? You cannot change your answers after submission.');
+            }
+            return true; // Auto-submit when time is up
+        }
+        
+        // Enhanced auto-submit with warnings
+        function showTimeWarning(minutes) {
+            const warningDiv = document.createElement('div');
+            warningDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 9999;
+                background: linear-gradient(135deg, #ff8c00, #ff1439);
+                color: white; padding: 1rem; border-radius: 0.5rem;
+                box-shadow: 0 10px 25px rgba(255, 140, 0, 0.3);
+                animation: slideIn 0.3s ease;
+            `;
+            warningDiv.innerHTML = `⚠️ Only ${minutes} minutes remaining!`;
+            document.body.appendChild(warningDiv);
+            
+            setTimeout(() => {
+                warningDiv.remove();
+            }, 3000);
+        }
+        
+        // Show warnings at specific time intervals
+        let warningsShown = {
+            ten: false,
+            five: false,
+            one: false
+        };
+        
+        function checkTimeWarnings() {
+            const minutes = Math.floor(timeRemaining / 60);
+            
+            if (minutes === 10 && !warningsShown.ten) {
+                showTimeWarning(10);
+                warningsShown.ten = true;
+            } else if (minutes === 5 && !warningsShown.five) {
+                showTimeWarning(5);
+                warningsShown.five = true;
+            } else if (minutes === 1 && !warningsShown.one) {
+                showTimeWarning(1);
+                warningsShown.one = true;
+            }
+        }
+        
+        // Prevent page refresh/back button during exam
+        window.addEventListener('beforeunload', function(e) {
+            e.preventDefault();
+            e.returnValue = 'Are you sure you want to leave? Your exam progress will be lost.';
+        });
+        
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        // Show mobile toggle button on small screens
+        function checkScreenSize() {
+            const toggle = document.getElementById('sidebarToggle');
+            if (window.innerWidth <= 768) {
+                toggle.style.display = 'block';
+            } else {
+                toggle.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkScreenSize);
+        checkScreenSize();
+        
+        // Auto-save functionality (optional)
+        function autoSave() {
+            const formData = new FormData(document.getElementById('examForm'));
+            // You can implement auto-save to localStorage here if needed
+        }
+        
+        // Save answers every 30 seconds
+        setInterval(autoSave, 30000);
+    </script>
+</body>
+</html>

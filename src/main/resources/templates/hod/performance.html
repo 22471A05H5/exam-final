@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Analytics - HOD Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #0f3460;
+            --neon-orange: #ff8c00;
+            --neon-yellow: #ffd700;
+            --neon-red: #ff4757;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo {
+            text-align: center;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--glass-bg);
+            border-left-color: var(--neon-orange);
+            transform: translateX(5px);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(45deg, var(--neon-red), #ff6b7a);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+
+        /* Department Info */
+        .department-info {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .department-name {
+            font-size: 1.5rem;
+            color: var(--neon-yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Performance Cards */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .performance-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .performance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .card-title {
+            color: var(--text-light);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Detailed Performance Table */
+        .performance-table-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            color: var(--neon-orange);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .performance-table th,
+        .performance-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .performance-table th {
+            color: var(--neon-yellow);
+            font-weight: 600;
+            background: rgba(255, 140, 0, 0.1);
+        }
+
+        .performance-table td {
+            color: var(--text-light);
+        }
+
+        .performance-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .score-cell {
+            font-weight: 600;
+        }
+
+        .score-excellent {
+            color: #2ecc71;
+        }
+
+        .score-good {
+            color: var(--neon-yellow);
+        }
+
+        .score-average {
+            color: #e67e22;
+        }
+
+        .score-poor {
+            color: var(--neon-red);
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            color: var(--neon-orange);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: rgba(255, 140, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Mobile Responsive */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .performance-table {
+                font-size: 0.9rem;
+            }
+
+            .performance-table th,
+            .performance-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-text">EMS</div>
+                <div class="logo-subtitle">HOD Panel</div>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/hod/dashboard" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="/hod/assistants" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Assistants</span>
+            </a>
+            <a href="/hod/faculty" class="nav-item">
+                <span class="nav-icon">👨‍🏫</span>
+                <span class="nav-text">Faculty</span>
+            </a>
+            <a href="/hod/students" class="nav-item">
+                <span class="nav-icon">🎓</span>
+                <span class="nav-text">Students & Scores</span>
+            </a>
+            <a href="/hod/exams" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-text">Exams</span>
+            </a>
+            <a href="/hod/performance" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Performance</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Performance Analytics</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <!-- Department Info -->
+        <div th:if="${department}" class="department-info">
+            <div class="department-name" th:text="${department.name}">Department Name</div>
+            <div style="color: var(--text-muted);">Comprehensive performance analytics for your department</div>
+        </div>
+
+        <!-- Performance Overview Cards -->
+        <div class="performance-grid">
+            <div class="performance-card">
+                <div class="card-header">
+                    <div class="card-icon">🎓</div>
+                    <div class="card-title">Total Students</div>
+                </div>
+                <div class="metric-value" th:text="${totalStudents != null ? totalStudents : 0}">0</div>
+                <div class="metric-label">Active students in department</div>
+            </div>
+
+            <div class="performance-card">
+                <div class="card-header">
+                    <div class="card-icon">📝</div>
+                    <div class="card-title">Total Exams</div>
+                </div>
+                <div class="metric-value" th:text="${totalExams != null ? totalExams : 0}">0</div>
+                <div class="metric-label">Exams conducted this semester</div>
+            </div>
+
+            <div class="performance-card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Average Score</div>
+                </div>
+                <div class="metric-value" th:text="${averageScore != null ? averageScore + '%' : '0%'}">0%</div>
+                <div class="metric-label">Department average performance</div>
+            </div>
+
+            <div class="performance-card">
+                <div class="card-header">
+                    <div class="card-icon">✅</div>
+                    <div class="card-title">Pass Rate</div>
+                </div>
+                <div class="metric-value" th:text="${passRate != null ? passRate + '%' : '0%'}">0%</div>
+                <div class="metric-label">Students scoring above 50%</div>
+            </div>
+        </div>
+
+        <!-- Detailed Performance Table -->
+        <div th:if="${examResults != null and !examResults.isEmpty()}" class="performance-table-container">
+            <div class="table-header">📋 Detailed Exam Results</div>
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Exam Title</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Grade</th>
+                        <th>Date Taken</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="result : ${examResults}">
+                        <td th:text="${result.student.firstName + ' ' + result.student.lastName}">Student Name</td>
+                        <td th:text="${result.exam.title}">Exam Title</td>
+                        <td th:text="${result.score + '/' + result.exam.questionCount}">Score</td>
+                        <td class="score-cell"
+                            th:classappend="${result.percentage >= 90} ? 'score-excellent' : 
+                                           ${result.percentage >= 75} ? 'score-good' : 
+                                           ${result.percentage >= 50} ? 'score-average' : 'score-poor'"
+                            th:text="${result.percentage + '%'}">Percentage</td>
+                        <td th:text="${result.grade}">Grade</td>
+                        <td th:text="${#dates.format(result.submissionTime, 'MMM dd, yyyy')}">Date</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">📈 Performance Trends</div>
+                <div class="chart-placeholder">
+                    Performance trend chart would be displayed here
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">🏆 Grade Distribution</div>
+                <div class="chart-placeholder">
+                    Grade distribution chart would be displayed here
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${examResults == null or examResults.isEmpty()}" class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <h3>No Performance Data Available</h3>
+            <p>There are currently no exam results to display performance analytics.</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !menuBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

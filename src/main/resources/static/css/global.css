@@ -1,0 +1,115 @@
+/* Global CSS - Hide Scrollbars Across Entire Website */
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    background: transparent !important;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+html {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+    overflow: auto !important;
+}
+
+body {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+    overflow: auto !important;
+}
+
+/* Hide scrollbar for all elements globally */
+* {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+}
+
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    background: transparent !important;
+}
+
+/* Specific element targeting */
+div, section, article, main, aside, nav, header, footer {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+div::-webkit-scrollbar,
+section::-webkit-scrollbar,
+article::-webkit-scrollbar,
+main::-webkit-scrollbar,
+aside::-webkit-scrollbar,
+nav::-webkit-scrollbar,
+header::-webkit-scrollbar,
+footer::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Hide scrollbars on containers */
+.sidebar, .main-content, .content-container, .container, .wrapper {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+.sidebar::-webkit-scrollbar,
+.main-content::-webkit-scrollbar,
+.content-container::-webkit-scrollbar,
+.container::-webkit-scrollbar,
+.wrapper::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Hide scrollbars on form elements */
+textarea, select, input[type="text"], input[type="email"], input[type="password"], input {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+textarea::-webkit-scrollbar,
+select::-webkit-scrollbar,
+input::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Hide scrollbars on modal and dialog elements */
+.modal, .dialog, .popup, .overlay, .dropdown {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+.modal::-webkit-scrollbar,
+.dialog::-webkit-scrollbar,
+.popup::-webkit-scrollbar,
+.overlay::-webkit-scrollbar,
+.dropdown::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Hide scrollbars on tables and lists */
+table, ul, ol, li {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+table::-webkit-scrollbar,
+ul::-webkit-scrollbar,
+ol::-webkit-scrollbar,
+li::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Ensure all overflow containers hide scrollbars */
+[style*="overflow"], [class*="scroll"], [id*="scroll"] {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+[style*="overflow"]::-webkit-scrollbar,
+[class*="scroll"]::-webkit-scrollbar,
+[id*="scroll"]::-webkit-scrollbar {
+    display: none !important;
+}
