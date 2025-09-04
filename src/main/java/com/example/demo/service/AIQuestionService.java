@@ -24,19 +24,19 @@ public class AIQuestionService {
     @Value("${ai.google.model:gemini-1.5-flash}")
     private String googleModel;
     
-    @Value("${openai.api.key}")
+    @Value("${openai.api.key:}")
     private String openaiApiKey;
     
-    @Value("${openai.api.url}")
+    @Value("${openai.api.url:}")
     private String openaiApiUrl;
     
-    @Value("${openai.model}")
+    @Value("${openai.model:}")
     private String openaiModel;
     
-    @Value("${gemini.api.key}")
+    @Value("${gemini.api.key:}")
     private String geminiApiKey;
     
-    @Value("${gemini.api.url}")
+    @Value("${gemini.api.url:}")
     private String geminiApiUrl;
     
     private final RestTemplate restTemplate = new RestTemplate();
