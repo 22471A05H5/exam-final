@@ -219,21 +219,10 @@
                     </div>
                     
                     <div style="display: flex; gap: 1rem;">
-                        <a th:if="${#temporals.createNow().isAfter(exam.startTime) and #temporals.createNow().isBefore(exam.endTime)}"
-                           th:href="@{/student/exams/{id}/take(id=${exam.id})}" 
+                        <a th:href="@{/student/exams/{id}/take(id=${exam.id})}" 
                            class="btn-primary" style="flex: 1;">
                             📝 Take Exam
                         </a>
-                        <button th:if="${#temporals.createNow().isBefore(exam.startTime)}"
-                                disabled 
-                                class="bg-gray-500 text-white px-4 py-2 rounded-lg cursor-not-allowed" style="flex: 1;">
-                            ⏰ Not Started
-                        </button>
-                        <button th:if="${#temporals.createNow().isAfter(exam.endTime)}"
-                                disabled 
-                                class="bg-gray-500 text-white px-4 py-2 rounded-lg cursor-not-allowed" style="flex: 1;">
-                            ⏰ Exam Ended
-                        </button>
                     </div>
                 </div>
             </div>
