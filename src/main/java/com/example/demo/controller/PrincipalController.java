@@ -216,7 +216,7 @@ public class PrincipalController {
                     studentData.put("lastName", student.getLastName());
                     studentData.put("email", student.getEmail());
                     studentData.put("username", student.getUsername());
-                    studentData.put("phoneNumber", student.getPhoneNumber());
+                    studentData.put("phoneNumber", student.getPhone());
                     studentData.put("department", student.getDepartment());
                     
                     // Get exam results for this student
