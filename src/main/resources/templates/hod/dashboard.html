@@ -7,16 +7,18 @@
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <style>
         :root {
-            --primary-color: #1a1a2e;
-            --secondary-color: #16213e;
-            --accent-color: #0f3460;
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
             --neon-orange: #ff8c00;
             --neon-yellow: #ffd700;
-            --neon-red: #ff4757;
             --text-light: #ffffff;
             --text-muted: #b0b0b0;
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
         }
 
         * {
@@ -26,17 +28,112 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
             min-height: 100vh;
             color: var(--text-light);
             overflow-x: hidden;
         }
 
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: var(--neon-orange);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.5rem 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
             padding: 2rem;
+            min-height: 100vh;
         }
 
         .header {
@@ -61,14 +158,18 @@
             margin-bottom: 1rem;
         }
 
-        .hod-info {
+        .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 140, 0, 0.1);
         }
 
         .stats-grid {
@@ -210,8 +311,12 @@
         }
 
         @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 1rem;
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
             }
 
             .header h1 {
@@ -225,75 +330,145 @@
             .action-buttons {
                 grid-template-columns: 1fr;
             }
-
-            .logout-btn {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin-bottom: 2rem;
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
-    <a href="/logout" class="logout-btn">Logout</a>
-    
-    <div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div class="logo-text">EMS</div>
+            </div>
+            <div class="user-info" th:if="${hod}">
+                <div class="user-role">Head of Department</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);" th:text="${hod.firstName + ' ' + hod.lastName}"></div>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/hod/dashboard" class="nav-link active">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/hod/assistants" class="nav-link">
+                    <span class="nav-icon">👥</span>
+                    <span>View Assistants</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/hod/students" class="nav-link">
+                    <span class="nav-icon">🎓</span>
+                    <span>Department Students</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/hod/exams" class="nav-link">
+                    <span class="nav-icon">📝</span>
+                    <span>Department Exams</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/logout" class="nav-link">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
         <div class="header">
             <h1>HOD Dashboard</h1>
             <div class="welcome-text">Head of Department Control Panel</div>
         </div>
 
-        <div class="hod-info" th:if="${hod}">
-            <h3>HOD Information</h3>
+        <div class="glass-card" th:if="${hod}">
+            <h3 style="color: var(--neon-orange); margin-bottom: 1rem;">HOD Information</h3>
             <p><strong>Name:</strong> <span th:text="${hod.firstName + ' ' + hod.lastName}"></span></p>
             <p><strong>Email:</strong> <span th:text="${hod.email}"></span></p>
             <p><strong>Employee ID:</strong> <span th:text="${hod.employeeId}"></span></p>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card glass-card">
                 <div class="stat-number" th:text="${totalAssistants}">0</div>
                 <div class="stat-label">Total Assistants</div>
+                <div class="stat-icon">👥</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">0</div>
-                <div class="stat-label">Active Exams</div>
+            <div class="stat-card glass-card">
+                <div class="stat-number" th:text="${totalStudents}">0</div>
+                <div class="stat-label">Department Students</div>
+                <div class="stat-icon">🎓</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">0</div>
-                <div class="stat-label">Pending Tasks</div>
+            <div class="stat-card glass-card">
+                <div class="stat-number" th:text="${totalExams}">0</div>
+                <div class="stat-label">Total Exams</div>
+                <div class="stat-icon">📝</div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-number" th:text="${averageScore != null ? #numbers.formatDecimal(averageScore, 1, 2) + '%' : 'N/A'}">N/A</div>
+                <div class="stat-label">Average Score</div>
+                <div class="stat-icon">📊</div>
             </div>
         </div>
 
         <div class="actions-section">
             <h2 class="section-title">Quick Actions</h2>
             <div class="action-buttons">
-                <a href="/hod/assistants" class="action-btn">
-                    View All Assistants
+                <a href="/hod/assistants" class="action-btn glass-card">
+                    <div class="btn-icon">👥</div>
+                    <div class="btn-text">
+                        <div class="btn-title">View Assistants</div>
+                        <div class="btn-subtitle">Manage department assistants</div>
+                    </div>
                 </a>
-                <a href="#" class="action-btn">
-                    Manage Exams
+                <a href="/hod/students" class="action-btn glass-card">
+                    <div class="btn-icon">🎓</div>
+                    <div class="btn-text">
+                        <div class="btn-title">View Students</div>
+                        <div class="btn-subtitle">Department student list</div>
+                    </div>
                 </a>
-                <a href="#" class="action-btn">
-                    Generate Reports
+                <a href="/hod/exams" class="action-btn glass-card">
+                    <div class="btn-icon">📝</div>
+                    <div class="btn-text">
+                        <div class="btn-title">View Exams</div>
+                        <div class="btn-subtitle">Department exam results</div>
+                    </div>
                 </a>
             </div>
         </div>
 
-        <div class="recent-activity">
-            <h3 style="color: var(--neon-yellow); margin-bottom: 1rem;">Department Assistants</h3>
-            <div th:if="${assistants.empty}">
-                <p style="color: var(--text-muted);">No assistants found.</p>
-            </div>
-            <div th:each="assistant : ${assistants}" class="activity-item">
-                <div>
-                    <strong th:text="${assistant.firstName + ' ' + assistant.lastName}"></strong>
-                    <br>
-                    <small th:text="${assistant.email}" style="color: var(--text-muted);"></small>
+        <div class="recent-activity glass-card">
+            <h3 style="color: var(--neon-orange); margin-bottom: 1.5rem;">Recent Activity</h3>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-content">
+                        <div class="activity-title">New exam created</div>
+                        <div class="activity-subtitle">Java Programming Exam</div>
+                    </div>
+                    <div class="activity-time">2 hours ago</div>
                 </div>
-                <div style="color: var(--neon-orange);" th:text="${assistant.employeeId}"></div>
+                <div class="activity-item">
+                    <div class="activity-content">
+                        <div class="activity-title">Student registered</div>
+                        <div class="activity-subtitle">John Doe joined the department</div>
+                    </div>
+                    <div class="activity-time">1 day ago</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-content">
+                        <div class="activity-title">Exam completed</div>
+                        <div class="activity-subtitle">Database Management exam finished</div>
+                    </div>
+                    <div class="activity-time">3 days ago</div>
+                </div>
             </div>
         </div>
     </div>

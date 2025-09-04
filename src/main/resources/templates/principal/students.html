@@ -313,6 +313,54 @@
             opacity: 0.5;
         }
 
+        .grade-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            min-width: 40px;
+        }
+
+        .grade-a {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .grade-b {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .grade-c {
+            background: linear-gradient(45deg, #ffd700, #ffb300);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .grade-d {
+            background: linear-gradient(45deg, #ff8c00, #ff6600);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .grade-f {
+            background: linear-gradient(45deg, #ff4757, #ff3742);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+        }
+
+        .score-value {
+            font-weight: 600;
+            color: var(--neon-blue);
+        }
+
+        .student-header {
+            position: relative;
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .sidebar {
@@ -433,29 +481,42 @@
 
             <!-- Students Grid -->
             <div class="students-grid" th:if="${students != null and !students.empty}">
-                <div class="student-card" th:each="student : ${students}" th:data-department="${student.department?.id}">
+                <div class="student-card" th:each="student : ${students}" th:data-department="${student.department?.id ?: student['department']?.id}">
                     <div class="student-header">
-                        <div class="student-avatar" th:text="${#strings.substring(student.firstName, 0, 1) + #strings.substring(student.lastName, 0, 1)}">AB</div>
+                        <div class="student-avatar" th:text="${#strings.substring(student['firstName'], 0, 1) + #strings.substring(student['lastName'], 0, 1)}">AB</div>
                         <div class="student-info">
-                            <h3 th:text="${student.firstName + ' ' + student.lastName}">Student Name</h3>
-                            <div class="student-email" th:text="${student.email}">student@email.com</div>
+                            <h3 th:text="${student['firstName'] + ' ' + student['lastName']}">Student Name</h3>
+                            <div class="student-email" th:text="${student['email']}">student@email.com</div>
                         </div>
+                        <div class="grade-badge" th:if="${student['hasResults']}" 
+                             th:classappend="${student['grade'] == 'A' ? 'grade-a' : student['grade'] == 'B' ? 'grade-b' : student['grade'] == 'C' ? 'grade-c' : student['grade'] == 'D' ? 'grade-d' : 'grade-f'}"
+                             th:text="${student['grade']}">A</div>
                     </div>
                     
                     <div class="student-details">
                         <div class="detail-item">
                             <span class="detail-label">Username</span>
-                            <span class="detail-value" th:text="${student.username}">username</span>
+                            <span class="detail-value" th:text="${student['username']}">username</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Department</span>
                             <span class="detail-value">
-                                <span class="department-badge" th:text="${student.department?.name ?: 'Not Assigned'}">Department</span>
+                                <span class="department-badge" th:text="${student['department']?.name ?: 'Not Assigned'}">Department</span>
                             </span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Phone</span>
-                            <span class="detail-value" th:text="${student.phoneNumber ?: 'Not provided'}">Phone</span>
+                            <span class="detail-label">Average Score</span>
+                            <span class="detail-value score-value" th:if="${student['hasResults']}" th:text="${student['averageScore'] + '%'}">85%</span>
+                            <span class="detail-value" th:unless="${student['hasResults']}" style="color: var(--text-muted);">No exams</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Exams Taken</span>
+                            <span class="detail-value" th:text="${student['totalExams']}">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Pass Rate</span>
+                            <span class="detail-value" th:if="${student['hasResults']}" th:text="${student['passRate'] + '%'}">80%</span>
+                            <span class="detail-value" th:unless="${student['hasResults']}" style="color: var(--text-muted);">N/A</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Status</span>

@@ -203,12 +203,86 @@ public class PrincipalController {
 
     @GetMapping("/students")
     public String viewStudents(Model model) {
-        List<User> students = userService.findByRole(User.UserRole.STUDENT);
-        List<Department> departments = departmentService.findAll();
-        
-        model.addAttribute("students", students);
-        model.addAttribute("departments", departments);
-        return "principal/students";
+        try {
+            List<User> students = userService.findByRole(User.UserRole.STUDENT);
+            List<Department> departments = departmentService.findAll();
+            
+            // Enhance students with exam performance data
+            List<Map<String, Object>> studentsWithScores = students.stream()
+                .map(student -> {
+                    Map<String, Object> studentData = new HashMap<>();
+                    studentData.put("id", student.getId());
+                    studentData.put("firstName", student.getFirstName());
+                    studentData.put("lastName", student.getLastName());
+                    studentData.put("email", student.getEmail());
+                    studentData.put("username", student.getUsername());
+                    studentData.put("phoneNumber", student.getPhoneNumber());
+                    studentData.put("department", student.getDepartment());
+                    
+                    // Get exam results for this student
+                    List<ExamResult> studentResults = examService.getResultsByStudent(student);
+                    
+                    if (!studentResults.isEmpty()) {
+                        double averageScore = studentResults.stream()
+                            .mapToDouble(ExamResult::getPercentage)
+                            .average()
+                            .orElse(0.0);
+                        
+                        long passCount = studentResults.stream()
+                            .filter(result -> result.getPercentage() >= 50.0)
+                            .count();
+                        
+                        double passRate = studentResults.size() > 0 ? 
+                            (double) passCount / studentResults.size() * 100 : 0.0;
+                        
+                        studentData.put("averageScore", Math.round(averageScore * 100.0) / 100.0);
+                        studentData.put("totalExams", studentResults.size());
+                        studentData.put("passedExams", passCount);
+                        studentData.put("passRate", Math.round(passRate * 100.0) / 100.0);
+                        studentData.put("hasResults", true);
+                        
+                        // Get grade based on average score
+                        String grade = "F";
+                        if (averageScore >= 90) grade = "A";
+                        else if (averageScore >= 80) grade = "B";
+                        else if (averageScore >= 70) grade = "C";
+                        else if (averageScore >= 60) grade = "D";
+                        
+                        studentData.put("grade", grade);
+                    } else {
+                        studentData.put("averageScore", 0.0);
+                        studentData.put("totalExams", 0);
+                        studentData.put("passedExams", 0);
+                        studentData.put("passRate", 0.0);
+                        studentData.put("hasResults", false);
+                        studentData.put("grade", "N/A");
+                    }
+                    
+                    return studentData;
+                })
+                .toList();
+            
+            model.addAttribute("students", studentsWithScores);
+            model.addAttribute("departments", departments);
+            model.addAttribute("totalStudents", students.size());
+            
+            return "principal/students";
+        } catch (Exception e) {
+            // Log the error and provide fallback data
+            System.err.println("Error in viewStudents: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Provide minimal data to prevent template errors
+            List<User> students = userService.findByRole(User.UserRole.STUDENT);
+            List<Department> departments = departmentService.findAll();
+            
+            model.addAttribute("students", students);
+            model.addAttribute("departments", departments);
+            model.addAttribute("totalStudents", students.size());
+            model.addAttribute("error", "Unable to load student performance data");
+            
+            return "principal/students";
+        }
     }
 
     @GetMapping("/performance")
