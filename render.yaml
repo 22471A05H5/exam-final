@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: exam-management-system
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
