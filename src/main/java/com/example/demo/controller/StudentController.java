@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,9 @@ public class StudentController {
             redirectAttributes.addFlashAttribute("error", "No questions available for this exam!");
             return "redirect:/student/exams";
         }
+        
+        // Shuffle questions to randomize order for each student
+        Collections.shuffle(questions);
         
         model.addAttribute("exam", exam);
         model.addAttribute("questions", questions);

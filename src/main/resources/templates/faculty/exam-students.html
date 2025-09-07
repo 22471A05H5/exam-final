@@ -10,8 +10,6 @@
             --primary-color: #0a0a0a;
             --secondary-color: #1a1a2e;
             --accent-color: #16213e;
-            --neon-blue: #00d4ff;
-            --neon-purple: #8a2be2;
             --neon-green: #39ff14;
             --neon-orange: #ff8c00;
             --text-light: #ffffff;
@@ -70,25 +68,65 @@
         .nav-item:hover, .nav-item.active {
             color: var(--text-light);
             background: var(--glass-bg);
-            border-left-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            border-left-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
         }
 
         /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             min-height: 100vh;
-            transition: margin-left 0.3s ease;
+            padding: 2rem;
         }
 
         .top-bar {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            color: white;
+            text-decoration: none;
         }
 
         .glass-card {
@@ -101,11 +139,11 @@
         }
 
         .glow-effect {
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.1);
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -119,7 +157,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 10px 25px rgba(57, 255, 20, 0.3);
         }
 
         .btn-secondary {
@@ -154,7 +192,7 @@
 
         .data-table th {
             background: var(--glass-bg);
-            color: var(--neon-blue);
+            color: var(--neon-green);
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.875rem;
@@ -171,16 +209,25 @@
                 transform: translateX(-100%);
             }
             
-            .sidebar.show {
+            .sidebar.open {
                 transform: translateX(0);
             }
             
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
             }
             
             .top-bar {
                 padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
             }
         }
 
@@ -194,12 +241,12 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+            background: linear-gradient(45deg, var(--neon-orange), var(--neon-green));
         }
     </style>
 </head>
@@ -207,7 +254,7 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2 style="color: var(--neon-blue); font-size: 1.25rem; font-weight: 700;">Faculty Portal</h2>
+            <h2 style="color: var(--neon-green); font-size: 1.25rem; font-weight: 700;">Faculty Portal</h2>
             <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;" th:if="${faculty}">
                 <span th:text="${faculty.firstName + ' ' + faculty.lastName}"></span>
             </p>
@@ -236,21 +283,23 @@
     <div class="main-content" id="mainContent">
         <!-- Top Bar -->
         <div class="top-bar">
-            <div>
-                <h1 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600;">Exam Results</h1>
-                <p style="color: var(--text-muted); font-size: 0.875rem;" th:if="${exam}">Exam: <span th:text="${exam.title}"></span></p>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                <div>
+                    <h1 class="page-title">Exam Results</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;" th:if="${exam}">Exam: <span th:text="${exam.title}"></span></p>
+                </div>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
                 <a href="/faculty/exams" class="btn-secondary">Back to Exams</a>
-                <a href="/logout" class="btn-secondary">Logout</a>
+                <a href="/logout" class="logout-btn">Logout</a>
             </div>
         </div>
 
         <!-- Content Area -->
-        <div style="padding: 2rem;">
             <!-- Exam Info -->
             <div class="glass-card glow-effect" th:if="${exam}">
-                <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">📋 Exam Information</h2>
+                <h2 style="color: var(--neon-green); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">📋 Exam Information</h2>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                     <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
@@ -258,11 +307,11 @@
                         <p style="color: var(--text-muted); font-size: 0.875rem;">Exam Name</p>
                     </div>
                     <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
-                        <h3 style="color: var(--neon-blue); font-size: 1.25rem; font-weight: 700;" th:text="${exam.totalQuestions}">Questions</h3>
+                        <h3 style="color: var(--neon-orange); font-size: 1.25rem; font-weight: 700;" th:text="${exam.totalQuestions}">Questions</h3>
                         <p style="color: var(--text-muted); font-size: 0.875rem;">Total Questions</p>
                     </div>
                     <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
-                        <h3 style="color: var(--neon-purple); font-size: 1.25rem; font-weight: 700;" th:text="${exam.timeLimit + ' mins'}">Time</h3>
+                        <h3 style="color: var(--neon-green); font-size: 1.25rem; font-weight: 700;" th:text="${exam.timeLimit + ' mins'}">Time</h3>
                         <p style="color: var(--text-muted); font-size: 0.875rem;">Duration</p>
                     </div>
                     <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 0.75rem; padding: 1rem; text-align: center;">
@@ -274,7 +323,7 @@
 
             <!-- Students Results -->
             <div class="glass-card glow-effect" th:if="${students != null and !students.empty}">
-                <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">👥 Students Who Took This Exam</h2>
+                <h2 style="color: var(--neon-green); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">👥 Students Who Took This Exam</h2>
                 
                 <div style="overflow-x: auto;">
                     <table class="data-table">
@@ -301,7 +350,7 @@
                                 </td>
                                 <td>
                                     <span th:if="${studentResults[student.id].percentage >= 80}" style="background: var(--neon-green); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">A</span>
-                                    <span th:if="${studentResults[student.id].percentage >= 70 and studentResults[student.id].percentage < 80}" style="background: var(--neon-blue); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">B</span>
+                                    <span th:if="${studentResults[student.id].percentage >= 70 and studentResults[student.id].percentage < 80}" style="background: var(--neon-orange); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">B</span>
                                     <span th:if="${studentResults[student.id].percentage >= 60 and studentResults[student.id].percentage < 70}" style="background: var(--neon-orange); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">C</span>
                                     <span th:if="${studentResults[student.id].percentage >= 50 and studentResults[student.id].percentage < 60}" style="background: #ff8c00; color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">D</span>
                                     <span th:if="${studentResults[student.id].percentage < 50}" style="background: #ff4757; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600;">F</span>
@@ -332,22 +381,18 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('show');
+            sidebar.classList.toggle('open');
         }
 
-        // Show mobile toggle button on small screens
-        function checkScreenSize() {
-            const toggle = document.getElementById('sidebarToggle');
-            if (window.innerWidth <= 768) {
-                if (toggle) toggle.style.display = 'block';
-            } else {
-                if (toggle) toggle.style.display = 'none';
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && !sidebar.contains(event.target) && !mobileBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
             }
-        }
-
-        window.addEventListener('resize', checkScreenSize);
-        checkScreenSize();
+        });
     </script>
 </body>
 </html>

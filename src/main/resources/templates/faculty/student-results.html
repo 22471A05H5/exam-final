@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Results - Exam Management System</title>
-    <link rel="stylesheet" href="/css/global.css">
+    <title>Student Results - Faculty Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
     <style>
         :root {
             --primary-color: #0a0a0a;
@@ -47,6 +47,194 @@
             border-right: 1px solid var(--glass-border);
             z-index: 1000;
             transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-light);
+            background: var(--glass-bg);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(57, 255, 20, 0.2);
+            text-decoration: none;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover::before, .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
         }
 
         .sidebar-header {
@@ -207,59 +395,70 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2 style="color: var(--neon-blue); font-size: 1.25rem; font-weight: 700;">Faculty Portal</h2>
-            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;" th:if="${faculty}">
-                <span th:text="${faculty.firstName + ' ' + faculty.lastName}"></span>
-            </p>
+            <div class="logo">
+                <div class="logo-icon">F</div>
+                <div class="logo-text">Faculty</div>
+            </div>
+            <div class="user-info">
+                <div class="user-role">Faculty Panel</div>
+                <div class="welcome-text" th:if="${faculty}" th:text="${faculty.firstName + ' ' + faculty.lastName}"></div>
+            </div>
         </div>
-        
+
         <nav class="sidebar-nav">
             <a href="/faculty/dashboard" class="nav-item">
-                <span style="margin-right: 0.75rem;">🏠</span> Dashboard
+                <span class="nav-icon">🏠</span>
+                <span>Dashboard</span>
             </a>
-            <a href="/faculty/exams/create" class="nav-item">
-                <span style="margin-right: 0.75rem;">➕</span> Create Exam
+            <a href="/faculty/exams/create/manual" class="nav-item">
+                <span class="nav-icon">✏️</span>
+                <span>Manual Exam</span>
+            </a>
+            <a href="/faculty/exams/create/ai" class="nav-item">
+                <span class="nav-icon">🤖</span>
+                <span>AI Generator</span>
+            </a>
+            <a href="/faculty/exams/create/csv" class="nav-item">
+                <span class="nav-icon">📄</span>
+                <span>CSV Upload</span>
             </a>
             <a href="/faculty/exams" class="nav-item">
-                <span style="margin-right: 0.75rem;">📝</span> My Exams
+                <span class="nav-icon">📋</span>
+                <span>My Exams</span>
             </a>
             <a href="/faculty/student-results" class="nav-item active">
-                <span style="margin-right: 0.75rem;">📊</span> Student Results
+                <span class="nav-icon">📊</span>
+                <span>Student Results</span>
             </a>
             <a href="/faculty/profile" class="nav-item">
-                <span style="margin-right: 0.75rem;">👤</span> Profile
+                <span class="nav-icon">👤</span>
+                <span>Profile</span>
             </a>
         </nav>
     </div>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
-        <!-- Top Bar -->
         <div class="top-bar">
-            <h1 style="color: var(--neon-blue); font-size: 1.75rem; font-weight: 700; margin: 0;">📊 Student Results by Exam</h1>
-            <div class="top-actions">
-                <span style="color: var(--text-light); font-weight: 500;" th:if="${department}">
-                    <span style="color: var(--neon-orange);" th:text="${department.code}"></span>
-                    <span th:text="${department.name}"></span>
-                </span>
-                <a href="/logout" style="background: linear-gradient(45deg, #ff4757, #ff6b7a); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Logout</a>
-            </div>
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Student Results</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
         <!-- Exam Selection -->
-        <div class="glass-card glow-effect" th:if="${exams != null and !exams.empty}">
-            <h2 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">📝 Select Exam to View Student Results</h2>
+        <div class="glass-card" th:if="${exams != null and !exams.empty}">
+            <h2 style="color: var(--neon-green); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">📝 Select Exam to View Student Results</h2>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                <div th:each="exam : ${exams}" class="exam-card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(138, 43, 226, 0.1)); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 1rem; padding: 1.5rem; transition: all 0.3s ease; cursor: pointer;" 
+                <div th:each="exam : ${exams}" class="exam-card" style="background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(255, 140, 0, 0.1)); border: 1px solid rgba(57, 255, 20, 0.3); border-radius: 1rem; padding: 1.5rem; transition: all 0.3s ease; cursor: pointer;" 
                      th:onclick="|window.location.href='/faculty/exams/' + ${exam.id} + '/students'|"
-                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 30px rgba(0, 212, 255, 0.3)'"
+                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 30px rgba(57, 255, 20, 0.3)'"
                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                     
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📋</div>
+                        <div style="background: linear-gradient(45deg, var(--neon-green), var(--neon-orange)); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📋</div>
                         <div>
-                            <h3 style="color: var(--neon-blue); font-size: 1.25rem; font-weight: 600; margin: 0;" th:text="${exam.title}"></h3>
+                            <h3 style="color: var(--neon-green); font-size: 1.25rem; font-weight: 600; margin: 0;" th:text="${exam.title}"></h3>
                             <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0.25rem 0 0 0;" th:text="${exam.totalQuestions + ' Questions • ' + exam.timeLimit + ' mins'}"></p>
                         </div>
                     </div>
@@ -275,20 +474,20 @@
                         </div>
                     </div>
                     
-                    <div style="background: rgba(0, 212, 255, 0.1); border-radius: 0.5rem; padding: 0.75rem; text-align: center;">
-                        <span style="color: var(--neon-blue); font-weight: 600; font-size: 0.875rem;">Click to View Student Results</span>
+                    <div style="background: rgba(57, 255, 20, 0.1); border-radius: 0.5rem; padding: 0.75rem; text-align: center;">
+                        <span style="color: var(--neon-green); font-weight: 600; font-size: 0.875rem;">Click to View Student Results</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- No Exams Message -->
-        <div class="glass-card glow-effect" th:if="${exams == null or exams.empty}">
+        <div class="glass-card" th:if="${exams == null or exams.empty}">
             <div style="text-align: center; padding: 3rem;">
                 <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;">📝</div>
-                <h3 style="color: var(--neon-blue); font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">No Exams Created Yet</h3>
+                <h3 style="color: var(--neon-green); font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">No Exams Created Yet</h3>
                 <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">Create your first exam to start viewing student results.</p>
-                <a href="/faculty/exams/create/manual" style="background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Create First Exam</a>
+                <a href="/faculty/exams/create/manual" style="background: linear-gradient(45deg, var(--neon-green), var(--neon-orange)); color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Create First Exam</a>
             </div>
         </div>
     </div>
@@ -296,22 +495,18 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            sidebar.classList.toggle('show');
+            sidebar.classList.toggle('open');
         }
 
-        // Show mobile toggle button on small screens
-        function checkScreenSize() {
-            const toggle = document.getElementById('sidebarToggle');
-            if (window.innerWidth <= 768) {
-                if (toggle) toggle.style.display = 'block';
-            } else {
-                if (toggle) toggle.style.display = 'none';
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && !sidebar.contains(event.target) && !mobileBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
             }
-        }
-
-        window.addEventListener('resize', checkScreenSize);
-        checkScreenSize();
+        });
     </script>
 </body>
 </html>

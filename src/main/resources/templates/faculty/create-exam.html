@@ -5,116 +5,437 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Exam - Faculty Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .glass-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --neon-blue: #00d4ff;
+            --neon-purple: #8a2be2;
+            --neon-green: #39ff14;
+            --neon-orange: #ff8c00;
+            --text-light: #ffffff;
+            --text-muted: #b0b0b0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-light);
+            background: var(--glass-bg);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(57, 255, 20, 0.2);
+            text-decoration: none;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover::before, .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(57, 255, 20, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(57, 255, 20, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 0.75rem 2rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-2xl mx-auto">
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-white mb-2">Create New Exam</h1>
-                <p class="text-blue-200" th:if="${department}">Department: <span th:text="${department.name}"></span></p>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">F</div>
+                <div class="logo-text">Faculty</div>
             </div>
+            <div class="user-info">
+                <div class="user-role">Faculty Panel</div>
+                <div class="welcome-text" th:if="${faculty}" th:text="${faculty.firstName + ' ' + faculty.lastName}"></div>
+            </div>
+        </div>
 
-            <!-- Form -->
-            <div class="glass-card rounded-lg p-8">
-                <form action="/faculty/exams/create" method="post" class="space-y-6">
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">Exam Title</label>
-                        <input type="text" name="title" required 
-                               class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                               placeholder="Enter exam title">
+        <nav class="sidebar-nav">
+            <a href="/faculty/dashboard" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/faculty/exams/create/manual" class="nav-item active">
+                <span class="nav-icon">✏️</span>
+                <span>Manual Exam</span>
+            </a>
+            <a href="/faculty/exams/create/ai" class="nav-item">
+                <span class="nav-icon">🤖</span>
+                <span>AI Generator</span>
+            </a>
+            <a href="/faculty/exams/create/csv" class="nav-item">
+                <span class="nav-icon">📄</span>
+                <span>CSV Upload</span>
+            </a>
+            <a href="/faculty/exams" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span>My Exams</span>
+            </a>
+            <a href="/faculty/student-results" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>Student Results</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">Create Manual Exam</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <div class="glass-card">
+            <form action="/faculty/exams/create" method="post">
+                <div class="form-group">
+                    <label class="form-label">Exam Title</label>
+                    <input type="text" name="title" required class="form-input" placeholder="Enter exam title">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" rows="3" class="form-input" placeholder="Enter exam description"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Total Questions</label>
+                        <input type="number" name="totalQuestions" id="totalQuestions" required min="1" max="100" 
+                               class="form-input" placeholder="Number of questions" onchange="updateTimeSuggestion()">
                     </div>
 
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">Description</label>
-                        <textarea name="description" rows="3"
-                                  class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                  placeholder="Enter exam description"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-white text-sm font-medium mb-2">Total Questions</label>
-                            <input type="number" name="totalQuestions" id="totalQuestions" required min="1" max="100"
-                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                   placeholder="Number of questions" onchange="updateTimeSuggestion()">
+                    <div class="form-group">
+                        <label class="form-label">Time Limit (minutes)</label>
+                        <input type="number" name="timeLimit" id="timeLimit" required min="5" max="300" 
+                               class="form-input" placeholder="Time in minutes">
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;" id="timeSuggestion">Suggested: 2 minutes per question</p>
+                        <div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; border: 1px solid rgba(57, 255, 20, 0.3);">
+                            <p style="color: var(--neon-green); font-size: 0.8rem;">⏰ Students will see a countdown timer during the exam</p>
+                            <p style="color: var(--neon-green); font-size: 0.8rem;">🔄 Exam will auto-submit when time expires</p>
                         </div>
+                    </div>
+                </div>
 
-                        <div>
-                            <label class="block text-white text-sm font-medium mb-2">Time Limit (minutes)</label>
-                            <input type="number" name="timeLimit" id="timeLimit" required min="5" max="300"
-                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                   placeholder="Time in minutes">
-                            <p class="text-blue-200 text-xs mt-1" id="timeSuggestion">Suggested: 2 minutes per question</p>
-                            <div class="mt-2 p-2 bg-blue-500/20 rounded border border-blue-400/30">
-                                <p class="text-blue-200 text-xs">⏰ Students will see a countdown timer during the exam</p>
-                                <p class="text-blue-200 text-xs">🔄 Exam will auto-submit when time expires</p>
-                            </div>
-                        </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Start Time</label>
+                        <input type="datetime-local" name="startTime" required class="form-input">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-white text-sm font-medium mb-2">Start Time</label>
-                            <input type="datetime-local" name="startTime" required
-                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        </div>
-
-                        <div>
-                            <label class="block text-white text-sm font-medium mb-2">End Time</label>
-                            <input type="datetime-local" name="endTime" required
-                                   class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">End Time</label>
+                        <input type="datetime-local" name="endTime" required class="form-input">
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block text-white text-sm font-medium mb-2">Question Creation Method</label>
-                        <select name="examType" required
-                                class="w-full px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select method</option>
-                            <option value="MANUAL">Manual Entry</option>
-                            <option value="CSV_UPLOAD">CSV Upload</option>
-                            <option value="AI_GENERATED">AI Generated</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Question Creation Method</label>
+                    <select name="examType" required class="form-input">
+                        <option value="">Select method</option>
+                        <option value="MANUAL">Manual Entry</option>
+                        <option value="CSV_UPLOAD">CSV Upload</option>
+                        <option value="AI_GENERATED">AI Generated</option>
+                    </select>
+                </div>
 
-                    <div class="flex gap-4">
-                        <button type="submit" 
-                                class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors">
-                            Create Exam
-                        </button>
-                        <a href="/faculty/dashboard" 
-                           class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors">
-                            Cancel
-                        </a>
-                    </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">Create Exam</button>
+                    <a href="/faculty/dashboard" class="btn-secondary" style="flex: 1; text-align: center;">Cancel</a>
+                </div>
                 </form>
             </div>
         </div>
     </div>
     <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
         function updateTimeSuggestion() {
             const totalQuestions = document.getElementById('totalQuestions').value;
             const timeLimitInput = document.getElementById('timeLimit');
             const timeSuggestion = document.getElementById('timeSuggestion');
             
             if (totalQuestions && totalQuestions > 0) {
-                // Calculate suggested time: 2 minutes per question
                 const suggestedTime = totalQuestions * 2;
                 timeSuggestion.textContent = `Suggested: ${suggestedTime} minutes (2 min per question)`;
                 
-                // Auto-fill time limit if empty
                 if (!timeLimitInput.value) {
                     timeLimitInput.value = suggestedTime;
                 }
@@ -123,15 +444,23 @@
             }
         }
         
-        // Set default start time to current time
         document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.querySelector('input[name="startTime"]').value = now.toISOString().slice(0, 16);
             
-            // Set default end time to 1 hour from now
             const endTime = new Date(now.getTime() + 60 * 60 * 1000);
             document.querySelector('input[name="endTime"]').value = endTime.toISOString().slice(0, 16);
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && !sidebar.contains(event.target) && !mobileBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
         });
     </script>
 </body>

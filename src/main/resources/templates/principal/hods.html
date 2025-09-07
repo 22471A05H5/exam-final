@@ -7,16 +7,17 @@
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <style>
         :root {
-            --primary-color: #1a1a2e;
-            --secondary-color: #16213e;
-            --accent-color: #0f3460;
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a2e;
+            --accent-color: #16213e;
             --neon-blue: #00d4ff;
             --neon-purple: #8a2be2;
             --neon-pink: #ff1493;
             --text-light: #ffffff;
             --text-muted: #b0b0b0;
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
         }
 
         * {
@@ -26,76 +27,162 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
             min-height: 100vh;
             color: var(--text-light);
             overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
 
-        .header {
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
             text-align: center;
-            margin-bottom: 3rem;
         }
 
-        .header h1 {
-            font-size: 3rem;
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
         }
 
-        .back-btn {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
+        .user-info {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: var(--neon-blue);
             font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
 
-        .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
-            color: white;
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.5rem 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-light);
             text-decoration: none;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .logout-btn {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
+            padding: 0.8rem 1.5rem;
             background: linear-gradient(45deg, #ff6b6b, #ee5a52);
             color: white;
-            padding: 0.8rem 1.5rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
 
         .logout-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
             color: white;
             text-decoration: none;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         .alert {
@@ -117,42 +204,45 @@
             border: 1px solid #dc3545;
         }
 
-        .hods-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .hod-card {
+        .hods-container {
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-radius: 15px;
             padding: 2rem;
-            position: relative;
-            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+        }
+
+        .hods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .hod-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .hod-card:hover {
+            background: rgba(255, 255, 255, 0.05);
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
-        }
-
-        .hod-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .hod-card:hover::before {
-            left: 100%;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
         }
 
         .hod-info h3 {
@@ -224,25 +314,33 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+            .sidebar {
+                transform: translateX(-100%);
             }
 
-            .header h1 {
-                font-size: 2rem;
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
             }
 
             .hods-grid {
                 grid-template-columns: 1fr;
             }
 
-            .back-btn, .logout-btn {
-                position: relative;
-                top: auto;
-                left: auto;
-                right: auto;
-                margin-bottom: 1rem;
-                width: 100%;
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
             }
 
             .hod-actions {
@@ -252,47 +350,118 @@
     </style>
 </head>
 <body>
-    <a href="/principal/dashboard" class="back-btn">← Back to Dashboard</a>
-    <a href="/logout" class="logout-btn">Logout</a>
-    
-    <div class="container">
-        <div class="header">
-            <h1>All HODs</h1>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">P</div>
+                <div class="logo-text">Principal</div>
+            </div>
+            <div class="user-info">
+                <div class="user-role">Principal Dashboard</div>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/principal/dashboard" class="nav-link">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/principal/students" class="nav-link">
+                    <span class="nav-icon">👨‍🎓</span>
+                    <span>Students</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/principal/hods" class="nav-link active">
+                    <span class="nav-icon">👨‍💼</span>
+                    <span>HODs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/principal/assistants" class="nav-link">
+                    <span class="nav-icon">👥</span>
+                    <span>Assistants</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/principal/performance" class="nav-link">
+                    <span class="nav-icon">📊</span>
+                    <span>Performance</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">HODs Management</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-        <div th:if="${hods.empty}" class="empty-state">
-            <h3>No HODs Found</h3>
-            <p>There are currently no HODs in the system.</p>
-        </div>
+        <div class="hods-container">
+            <div class="section-header">
+                <h2 class="section-title">All HODs</h2>
+            </div>
 
-        <div th:unless="${hods.empty}" class="hods-grid">
-            <div th:each="hod : ${hods}" class="hod-card">
-                <div class="hod-info">
-                    <h3 th:text="${hod.firstName + ' ' + hod.lastName}"></h3>
-                    <p><strong>Email:</strong> <span th:text="${hod.email}"></span></p>
-                    <p><strong>Phone:</strong> <span th:text="${hod.phone ?: 'Not provided'}"></span></p>
-                    <p><strong>Employee ID:</strong> <span th:text="${hod.employeeId}"></span></p>
-                    <p><strong>Username:</strong> <span th:text="${hod.username}"></span></p>
-                    <p><strong>Status:</strong> 
-                        <span th:text="${hod.active ? 'Active' : 'Inactive'}" 
-                              th:class="${hod.active ? 'text-success' : 'text-danger'}"></span>
-                    </p>
-                </div>
-                <div class="hod-actions">
-                    <a th:href="@{/principal/users/{id}/edit(id=${hod.id})}" class="action-btn edit-btn">
-                        Edit
-                    </a>
-                    <form th:action="@{/principal/users/{id}/delete(id=${hod.id})}" method="post" 
-                          style="display: inline;" 
-                          onsubmit="return confirm('Are you sure you want to delete this HOD?')">
-                        <button type="submit" class="action-btn delete-btn">Delete</button>
-                    </form>
+            <div th:if="${hods.empty}" class="empty-state">
+                <h3>No HODs Found</h3>
+                <p>There are currently no HODs in the system.</p>
+            </div>
+
+            <div th:unless="${hods.empty}" class="hods-grid">
+                <div th:each="hod : ${hods}" class="hod-card">
+                    <div class="hod-info">
+                        <h3 th:text="${hod.firstName + ' ' + hod.lastName}"></h3>
+                        <p><strong>Email:</strong> <span th:text="${hod.email}"></span></p>
+                        <p><strong>Phone:</strong> <span th:text="${hod.phone ?: 'Not provided'}"></span></p>
+                        <p><strong>Employee ID:</strong> <span th:text="${hod.employeeId}"></span></p>
+                        <p><strong>Username:</strong> <span th:text="${hod.username}"></span></p>
+                        <p><strong>Status:</strong> 
+                            <span th:text="${hod.active ? 'Active' : 'Inactive'}" 
+                                  th:class="${hod.active ? 'text-success' : 'text-danger'}"></span>
+                        </p>
+                    </div>
+                    <div class="hod-actions">
+                        <a th:href="@{/principal/users/{id}/edit(id=${hod.id})}" class="action-btn edit-btn">
+                            Edit
+                        </a>
+                        <form th:action="@{/principal/users/{id}/delete(id=${hod.id})}" method="post" 
+                              style="display: inline;" 
+                              onsubmit="return confirm('Are you sure you want to delete this HOD?')">
+                            <button type="submit" class="action-btn delete-btn">Delete</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !menuBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
 </body>
 </html>

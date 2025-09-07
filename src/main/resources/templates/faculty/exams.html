@@ -49,13 +49,51 @@
             transition: transform 0.3s ease;
         }
 
-        .sidebar.hidden {
-            transform: translateX(-100%);
-        }
-
         .sidebar-header {
             padding: 2rem 1.5rem;
             border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: var(--neon-green);
+            font-weight: 600;
         }
 
         .sidebar-nav {
@@ -63,40 +101,104 @@
         }
 
         .nav-item {
-            display: block;
-            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
             color: var(--text-muted);
             text-decoration: none;
+            border-radius: 12px;
             transition: all 0.3s ease;
-            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
 
         .nav-item:hover, .nav-item.active {
             color: var(--text-light);
             background: var(--glass-bg);
-            border-left-color: var(--neon-green);
-            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(57, 255, 20, 0.2);
+            text-decoration: none;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover::before, .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
         }
 
         /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             min-height: 100vh;
-            transition: margin-left 0.3s ease;
-        }
-
-        .main-content.expanded {
-            margin-left: 0;
+            padding: 2rem;
         }
 
         .top-bar {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            color: white;
+            text-decoration: none;
         }
 
         .glass-card {
@@ -247,73 +349,72 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2 style="color: var(--neon-green); font-weight: 700; font-size: 1.5rem;">Faculty Panel</h2>
-            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Exam Management</p>
+            <div class="logo">
+                <div class="logo-icon">F</div>
+                <div class="logo-text">Faculty</div>
+            </div>
+            <div class="user-info">
+                <div class="user-role">Faculty Panel</div>
+                <div class="welcome-text" th:if="${faculty}" th:text="${faculty.firstName + ' ' + faculty.lastName}"></div>
+            </div>
         </div>
         
         <nav class="sidebar-nav">
             <a href="/faculty/dashboard" class="nav-item">
-                <span style="margin-right: 0.75rem;">🏠</span> Dashboard
+                <span class="nav-icon">🏠</span>
+                <span>Dashboard</span>
             </a>
             <a href="/faculty/exams/create/manual" class="nav-item">
-                <span style="margin-right: 0.75rem;">✏️</span> Manual Exam
+                <span class="nav-icon">✏️</span>
+                <span>Manual Exam</span>
             </a>
             <a href="/faculty/exams/create/ai" class="nav-item">
-                <span style="margin-right: 0.75rem;">🤖</span> AI Generator
+                <span class="nav-icon">🤖</span>
+                <span>AI Generator</span>
             </a>
             <a href="/faculty/exams/create/csv" class="nav-item">
-                <span style="margin-right: 0.75rem;">📄</span> CSV Upload
+                <span class="nav-icon">📄</span>
+                <span>CSV Upload</span>
             </a>
             <a href="/faculty/exams" class="nav-item active">
-                <span style="margin-right: 0.75rem;">📋</span> My Exams
+                <span class="nav-icon">📋</span>
+                <span>My Exams</span>
             </a>
             <a href="/faculty/students" class="nav-item">
-                <span style="margin-right: 0.75rem;">👥</span> Students
+                <span class="nav-icon">👥</span>
+                <span>Students</span>
             </a>
         </nav>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Top Bar -->
+    <div class="main-content">
         <div class="top-bar">
-            <div style="display: flex; align-items: center;">
-                <button onclick="toggleSidebar()" class="btn-secondary" style="margin-right: 1rem; display: none;" id="sidebarToggle">
-                    ☰
-                </button>
-                <div>
-                    <h1 style="font-size: 1.5rem; font-weight: 600;">My Exams</h1>
-                    <p style="color: var(--text-muted); font-size: 0.875rem;" th:if="${department}">Department: <span th:text="${department.name}"></span></p>
-                </div>
-            </div>
-            <div>
-                <a href="/logout" class="btn-secondary">Logout</a>
-            </div>
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <h1 class="page-title">My Exams</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
-        <!-- Content -->
-        <div style="padding: 2rem;">
-
-            <!-- Quick Actions -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                <a href="/faculty/exams/create/manual" class="glass-card glow-effect" style="text-decoration: none; color: inherit; text-align: center; transition: all 0.3s ease;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">✏️</div>
-                    <h3 style="color: var(--neon-green); font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">Manual Exam</h3>
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">Create exam manually</p>
+        <!-- Quick Actions -->
+        <div class="glass-card" style="margin-bottom: 2rem;">
+            <h2 style="color: var(--neon-green); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Quick Actions</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <a href="/faculty/exams/create/manual" style="text-decoration: none; color: inherit; text-align: center; padding: 1.5rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 0.75rem; transition: all 0.3s ease;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">✏️</div>
+                    <h3 style="color: var(--neon-green); font-size: 1rem; font-weight: 600;">Manual Exam</h3>
                 </a>
                 
-                <a href="/faculty/exams/create/ai" class="glass-card glow-effect" style="text-decoration: none; color: inherit; text-align: center; transition: all 0.3s ease;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
-                    <h3 style="color: var(--neon-green); font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">AI Generator</h3>
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">Generate with AI</p>
+                <a href="/faculty/exams/create/ai" style="text-decoration: none; color: inherit; text-align: center; padding: 1.5rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 0.75rem; transition: all 0.3s ease;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
+                    <h3 style="color: var(--neon-green); font-size: 1rem; font-weight: 600;">AI Generator</h3>
                 </a>
                 
-                <a href="/faculty/exams/create/csv" class="glass-card glow-effect" style="text-decoration: none; color: inherit; text-align: center; transition: all 0.3s ease;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
-                    <h3 style="color: var(--neon-green); font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">CSV Upload</h3>
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">Upload from file</p>
+                <a href="/faculty/exams/create/csv" style="text-decoration: none; color: inherit; text-align: center; padding: 1.5rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 0.75rem; transition: all 0.3s ease;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📄</div>
+                    <h3 style="color: var(--neon-green); font-size: 1rem; font-weight: 600;">CSV Upload</h3>
                 </a>
             </div>
+        </div>
 
             <!-- Exams List -->
             <div class="glass-card glow-effect" th:if="${exams != null and !exams.empty}">

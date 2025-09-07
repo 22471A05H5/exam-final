@@ -181,14 +181,16 @@
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
             transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .question-card:hover {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
         }
 
         .question-title {
@@ -201,18 +203,27 @@
         .option-label {
             display: flex;
             align-items: center;
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .option-label:hover {
             background: rgba(0, 212, 255, 0.1);
             border-color: var(--neon-blue);
+            transform: translateX(5px);
+            box-shadow: 0 4px 16px rgba(0, 212, 255, 0.2);
+        }
+
+        .option-label:has(input:checked) {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
         .option-label input[type="radio"] {
@@ -225,6 +236,8 @@
         .option-text {
             color: var(--text-light);
             font-weight: 500;
+            font-size: 1rem;
+            line-height: 1.5;
         }
 
         /* Mobile Responsive */
@@ -243,6 +256,16 @@
             
             .top-bar {
                 padding: 1rem;
+            }
+            
+            .question-card {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .option-label {
+                padding: 0.75rem 1rem;
+                margin-bottom: 0.75rem;
             }
         }
 
@@ -315,35 +338,35 @@
         </div>
 
         <!-- Content -->
-        <div style="padding: 2rem;">
+        <div style="padding: 2rem; max-width: 900px; margin: 0 auto;">
             <!-- Exam Form -->
             <form th:action="@{/student/exams/{id}/submit(id=${exam.id})}" method="post" id="examForm">
                 <input type="hidden" name="startTime" th:value="${#dates.createNow().time}" id="startTimeInput">
                 
                 <!-- Questions -->
-                <div th:each="question, iterStat : ${questions}" class="question-card glow-effect">
-                    <h3 class="question-title">
-                        Question <span th:text="${question.questionNumber}"></span>: 
-                        <span th:text="${question.questionText}"></span>
+                <div th:each="question, iterStat : ${questions}" class="question-card glow-effect" style="text-align: center;">
+                    <h3 class="question-title" style="text-align: center; margin-bottom: 2rem; font-size: 1.25rem; line-height: 1.6;">
+                        <span style="display: inline-block; background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); color: white; padding: 0.5rem 1rem; border-radius: 50%; margin-right: 1rem; font-weight: 700; min-width: 40px;" th:text="${question.questionNumber}"></span>
+                        <span th:text="${question.questionText}" style="color: var(--text-light);"></span>
                     </h3>
                     
-                    <div>
-                        <label class="option-label">
+                    <div style="display: grid; gap: 1rem; max-width: 600px; margin: 0 auto; text-align: left;">
+                        <label class="option-label" style="justify-content: flex-start;">
                             <input type="radio" th:name="'question_' + ${question.id}" value="A">
                             <span class="option-text">A) <span th:text="${question.optionA}"></span></span>
                         </label>
                         
-                        <label class="option-label">
+                        <label class="option-label" style="justify-content: flex-start;">
                             <input type="radio" th:name="'question_' + ${question.id}" value="B">
                             <span class="option-text">B) <span th:text="${question.optionB}"></span></span>
                         </label>
                         
-                        <label class="option-label">
+                        <label class="option-label" style="justify-content: flex-start;">
                             <input type="radio" th:name="'question_' + ${question.id}" value="C">
                             <span class="option-text">C) <span th:text="${question.optionC}"></span></span>
                         </label>
                         
-                        <label class="option-label">
+                        <label class="option-label" style="justify-content: flex-start;">
                             <input type="radio" th:name="'question_' + ${question.id}" value="D">
                             <span class="option-text">D) <span th:text="${question.optionD}"></span></span>
                         </label>
