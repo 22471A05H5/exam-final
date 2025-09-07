@@ -84,7 +84,7 @@
                 0 0 50px rgba(0, 212, 255, 0.2),
                 0 0 100px rgba(138, 43, 226, 0.1),
                 inset 0 0 50px rgba(255, 255, 255, 0.05);
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
             animation: containerGlow 3s ease-in-out infinite alternate;
             position: relative;
@@ -286,11 +286,140 @@
             50% { transform: scale(1.02); }
         }
 
+        /* Role Selection Styles */
+        .role-label {
+            display: block;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-shadow: 0 0 10px var(--neon-blue);
+            position: relative;
+            z-index: 1;
+        }
+
+        .role-toggle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .role-option {
+            position: relative;
+        }
+
+        .role-option input[type="radio"] {
+            display: none;
+        }
+
+        .role-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-height: 70px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.1), 
+                transparent);
+            transition: all 0.5s ease;
+            z-index: 0;
+        }
+
+        .role-icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .role-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            position: relative;
+            z-index: 1;
+        }
+
+        .role-btn:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .role-btn:hover::before {
+            left: 100%;
+        }
+
+        .role-option input[type="radio"]:checked + .role-btn {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-color: var(--neon-blue);
+            box-shadow: 
+                0 0 20px rgba(0, 212, 255, 0.5),
+                0 0 40px rgba(138, 43, 226, 0.3);
+            transform: scale(1.05);
+        }
+
+        .role-option input[type="radio"]:checked + .role-btn .role-text {
+            color: white;
+            font-weight: 600;
+        }
+
+        .role-option input[type="radio"]:checked + .role-btn .role-icon {
+            animation: iconBounce 0.5s ease-in-out;
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .login-container {
                 padding: 1.5rem;
-                max-width: 350px;
+                max-width: 450px;
+            }
+
+            .role-toggle-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.6rem;
+            }
+
+            .role-btn {
+                padding: 0.6rem 0.4rem;
+                min-height: 60px;
+            }
+
+            .role-icon {
+                font-size: 1rem;
+            }
+
+            .role-text {
+                font-size: 0.7rem;
             }
 
             .logo {
@@ -316,7 +445,26 @@
         @media (max-width: 480px) {
             .login-container {
                 padding: 1.2rem;
-                max-width: 320px;
+                max-width: 380px;
+            }
+
+            .role-toggle-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .role-btn {
+                padding: 0.5rem 0.3rem;
+                min-height: 55px;
+            }
+
+            .role-icon {
+                font-size: 0.9rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .role-text {
+                font-size: 0.65rem;
             }
 
             .logo {
@@ -343,6 +491,55 @@
         </div>
         
         <form th:action="@{/login}" method="post">
+            <!-- Role Selection -->
+            <div class="form-group">
+                <label class="role-label">Select Role</label>
+                <div class="role-toggle-container">
+                    <div class="role-option">
+                        <input type="radio" id="superadmin" name="role" value="SUPERADMIN" required>
+                        <label for="superadmin" class="role-btn">
+                            <span class="role-icon">👑</span>
+                            <span class="role-text">SuperAdmin</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" id="principal" name="role" value="PRINCIPAL" required>
+                        <label for="principal" class="role-btn">
+                            <span class="role-icon">🎓</span>
+                            <span class="role-text">Principal</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" id="hod" name="role" value="HOD" required>
+                        <label for="hod" class="role-btn">
+                            <span class="role-icon">📋</span>
+                            <span class="role-text">HOD</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" id="assistant" name="role" value="ASSISTANT" required>
+                        <label for="assistant" class="role-btn">
+                            <span class="role-icon">🤝</span>
+                            <span class="role-text">Assistant</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" id="faculty" name="role" value="FACULTY" required>
+                        <label for="faculty" class="role-btn">
+                            <span class="role-icon">👨‍🏫</span>
+                            <span class="role-text">Faculty</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" id="student" name="role" value="STUDENT" required>
+                        <label for="student" class="role-btn">
+                            <span class="role-icon">🎒</span>
+                            <span class="role-text">Student</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
             <div class="form-group">
                 <input type="text" id="username" name="username" required 
                        placeholder="Username">
